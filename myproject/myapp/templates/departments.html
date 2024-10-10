@@ -1,0 +1,39 @@
+
+{% extends 'index.html' %}
+
+{% block title %}Departments{% endblock %}
+
+{% block content %}
+
+<section class="home">
+<p>Department </p>
+<table class="table">
+  <thead>
+      <tr>
+          <th scope="col">Departments</th>
+          <th scope="col">Employees</th>
+          <th scope="col">Late</th>
+          <th scope="col">Absent</th>
+          <th scope="col">On-time</th>
+          <th scope="col">Action</th>
+      </tr>
+  </thead>
+  <tbody>
+      {% for department in departments %}
+      <tr>
+          <th scope="row">{{ department.name }}</th>
+          <td>{{ department.employees.count }}</td> <!-- Assuming you have a way to count employees -->
+          <td>{{ department.late_count }}</td> <!-- Replace with actual late count logic -->
+          <td>{{ department.absent_count }}</td> <!-- Replace with actual absent count logic -->
+          <td>{{ department.on_time_count }}</td> <!-- Replace with actual on-time count logic -->
+          <td><a>View</a></td> <!-- Link to view details -->
+      </tr>
+      {% empty %}
+      <tr>
+          <td colspan="6">No departments available</td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+</section>
+{% endblock %}

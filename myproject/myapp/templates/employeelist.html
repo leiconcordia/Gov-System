@@ -1,0 +1,36 @@
+{% extends 'index.html' %}
+
+{% block title %}Employee{% endblock %}
+
+{% block content %}
+
+<section class="home">
+    <p>Employee list</p>-
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Department</th>
+                <th scope="col">Employee ID</th>
+                <th scope="col">Employee Name</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {% for employee in employee %}
+                <th scope="row">{{ employee.department_name }}</th>
+                <td>{{ employee.employee_id }}</td>
+                <td>{{ employee.last_name }} {{ employee.first_name }}</td>
+                
+    
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <button class="add-employee-btn" onclick="window.location.href='{% url 'add_employee' %}'">Add Employee</button>
+
+         
+
+</section>
+
+{% endblock %}

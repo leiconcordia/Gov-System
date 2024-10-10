@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/outside.css' %}">
+</head>
+
+<body>
+    
+    <div class="form-container">
+        
+        <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
+            {% csrf_token %}
+            <h2>EMPLOYEE'S NAME</h2>
+            <input type="text" name="employee_name" id="employee-name" placeholder="NAME" required>
+            <button type="submit" id="checkin-btn">Check In</button>
+        </form>
+        
+
+        
+    </div>
+
+
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/outside.css' %}">
+   
+</head>
+<style>
+    #login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff; /* Ensure visible background */
+    width: 100%; /* Adjust width for visibility */
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+#login-form input {
+    width: 100%; /* Ensure inputs take up the full width of the form */
+    max-width: 300px; /* Optional: set a maximum width */
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #080808;
+    border-radius: 5px;
+    font-size: 16px;
+    background-origin: padding-box;
+}
+
+#login-form button {
+    width: 100%; /* Ensure buttons take up the full width of the form */
+    max-width: 320px; /* Optional: set a maximum width */
+    padding: 10px;
+    background-color: #1a99f4;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 10px; /* Add space below the button */
+}
+
+#login-form button:hover {
+    background-color: #050505ea;
+}
+
+</style>
+
+<body>
+
+
+
+    <form id="login-form" method="POST">
+        {% csrf_token %}
+        <h2>ADMIN LOGIN</h2>
+        <input type="text" id="login-username" name="username" placeholder="Username" required>
+        <input type="password" id="login-password" name="password" placeholder="Password" required>
+        <button type="submit" id="login-btn">Login</button>
+    </form>
+
+
+
+    
+</body>
+</html>
