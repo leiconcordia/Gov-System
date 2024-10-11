@@ -111,3 +111,17 @@ def employeelist(request):
     return render(request, 'employeelist.html', context)
 
 
+
+def viewdepartment(request, department_id):
+    
+    department = Department.objects.get(id=department_id)
+
+    
+
+    employees = department.employees.all()
+    
+    # Render the template with the department and its employees
+    return render(request, 'viewdepartments.html', {
+        'department': department,
+        'employees': employees
+    })

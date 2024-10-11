@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+
+{% block title %}View Department{% endblock %}
+
+{% block content %}
+
+<section class="home">
+<p>{{ department.name }}</p>
+<table class="table">
+  <thead>
+      <tr>
+          
+          <th scope="col">Employee ID</th>
+          <th scope="col">Employee Name</th>
+          <th scope="col">Status</th>
+          <th scope="col">Time</th>
+
+      </tr>
+  </thead>
+  <tbody>
+      {% for employee in employees %}
+      <tr>
+        <th scope="row">{{ employee.employee_id }}</th>
+        <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+        <td>wala pa</td>
+        <td>wala pa</td>
+      {% endfor %}
+  </tbody>
+</table>
+</section>
+{% endblock %}

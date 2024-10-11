@@ -21,7 +21,7 @@
         
             <label for="department">Department:</label>
             <select id="department" name="department_name" required>
-                <option value="" disabled selected>Select a department</option>
+                
                     {% for departments in departments %}
                     <option value="{{ departments.id }}">{{ departments.name }}</option>
                     {% empty %}

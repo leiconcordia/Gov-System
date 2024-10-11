@@ -9,18 +9,18 @@
         <table class="table">
             <thead>
               <tr>
-                <th scope="col">Department</th>
-                <th scope="col">Employee ID</th>
                 <th scope="col">Employee Name</th>
+                <th scope="col">Employee ID</th>
+                <th scope="col">Department</th>
                 
               </tr>
             </thead>
             <tbody>
               <tr>
                 {% for employee in employee %}
-                <th scope="row">{{ employee.department_name }}</th>
+                <th scope="row">{{ employee.last_name }} {{ employee.first_name }}</th>
                 <td>{{ employee.employee_id }}</td>
-                <td>{{ employee.last_name }} {{ employee.first_name }}</td>
+                <td>{{ employee.department_name }}</td>
                 
     
               </tr>

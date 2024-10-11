@@ -26,7 +26,8 @@
           <td>{{ department.late_count }}</td> <!-- Replace with actual late count logic -->
           <td>{{ department.absent_count }}</td> <!-- Replace with actual absent count logic -->
           <td>{{ department.on_time_count }}</td> <!-- Replace with actual on-time count logic -->
-          <td><a>View</a></td> <!-- Link to view details -->
+          <td><a href="{% url 'viewdepartments' department.id %}">View</a></td>
+
       </tr>
       {% empty %}
       <tr>
