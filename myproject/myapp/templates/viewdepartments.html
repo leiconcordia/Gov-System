@@ -20,10 +20,10 @@
   <tbody>
       {% for employee in employees %}
       <tr>
-        <th scope="row">{{ employee.employee_id }}</th>
-        <td>{{ employee.first_name }} {{ employee.last_name }}</td>
-        <td>wala pa</td>
-        <td>wala pa</td>
+        <th scope="row">{{ employee.employee.employee_id }}</th>
+        <td>{{ employee.employee.first_name }} {{ employee.employee.last_name }}</td>
+        <td>{{ employee.status }}</td>
+        <td>{{ employee.time }}</td>
       {% endfor %}
   </tbody>
 </table>

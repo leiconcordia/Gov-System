@@ -4,7 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from .models import Department,Employee
+from .models import Department,Employee, Attendance
+from django.utils import timezone
+import pytz
+    
 
 
 # User = get_user_model()
@@ -14,14 +17,52 @@ from .models import Department,Employee
 
 def checkin(request):
     if request.method == 'POST':
-        name = request.POST.get("employee_name")
-        print(name)
+        employee_input = request.POST.get('employee_input')  # This can be either ID or name
+
+        # Try to find the employee by ID or by name (last_name, first_name)
+        try:
+            employee = Employee.objects.get(employee_id=employee_input)
+        except Employee.DoesNotExist:
+            try:
+                first_name, last_name = employee_input.split()  # Expecting "Last First"
+                employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
+            except (Employee.DoesNotExist, ValueError):
+                return HttpResponse("Employee not found.", status=404)
+
+        now_utc = timezone.now()
+
+        # Convert to Philippine time
+        philippine_tz = pytz.timezone('Asia/Manila')
+        now_philippine = now_utc.astimezone(philippine_tz)
+
+        current_time = now_philippine.time()
+        current_date = now_philippine.date()
+
+        # Check if the attendance has already been marked for today
+        if Attendance.objects.filter(employee=employee, date=current_date).exists():
+            return HttpResponse("Attendance already marked for today.", status=400)
+
+        # Determine attendance status
+        if current_time < timezone.datetime.strptime('07:30', '%H:%M').time():
+            status = 'ontime'
+        elif current_time < timezone.datetime.strptime('12:00', '%H:%M').time():
+            status = 'late'
+        else:
+            status = 'absent'
+
+        # Create a new attendance record
+        Attendance.objects.create(
+            employee=employee,
+            date=current_date,
+            time=current_time,
+            status=status
+        )
+
+        # Render the same template with a success alert
+        return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
+
+    # Handle GET request
     return render(request, 'checkin.html')
-
-def checkout(request):
-    return render(request, 'checkout.html')
-
-
 
 @login_required
 def admin_dashboard_view(request):
@@ -115,13 +156,32 @@ def employeelist(request):
 def viewdepartment(request, department_id):
     
     department = Department.objects.get(id=department_id)
-
+    employees = Attendance.objects.all()
     
-
-    employees = department.employees.all()
+    attendance_data = {}
     
-    # Render the template with the department and its employees
+    # for employee in employees:    
+    #     attendance_record = Attendance.objects.filter(employee=employee).order_by('-date').first()
+    #     if attendance_record:
+    #         attendance_data[employee.id] = {
+    #             'status': attendance_record.status,
+    #             'time': attendance_record.time,
+    #         }
+    #     else:
+    #         attendance_data[employee.id] = {
+    #             'status': 'not yet marked',  # No attendance record
+    #             'time': 'not yet marked',    # No attendance time
+    #         }
+
+    # Render the template with the department, employees, and attendance data
     return render(request, 'viewdepartments.html', {
         'department': department,
-        'employees': employees
+        'employees': employees,
+        'attendance_data': attendance_data,
     })
+    
+
+
+
+
+
