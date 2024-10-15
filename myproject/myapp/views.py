@@ -159,12 +159,10 @@ def employeelist(request):
 def viewdepartment(request, department_id):
     # Fetch the department based on the provided department_id
     department = Department.objects.get(id=department_id)
-    
+    current_date = timezone.now().date()
     # Get all employees associated with the department
-    employees = Employee.objects.filter(department_name_id=department_id)
-    
-
-    # Render the template with the department and employees
+    employees = Attendance.objects.filter(employee__department_name=department, date=current_date)
+   
     return render(request, 'viewdepartments.html', {
         'department': department,
         'employees': employees,
