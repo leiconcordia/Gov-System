@@ -153,35 +153,79 @@ def employeelist(request):
 
 
 
-def viewdepartment(request, department_id):
     
-    department = Department.objects.get(id=department_id)
-    employees = Attendance.objects.all()
-    
-    attendance_data = {}
-    
-    # for employee in employees:    
-    #     attendance_record = Attendance.objects.filter(employee=employee).order_by('-date').first()
-    #     if attendance_record:
-    #         attendance_data[employee.id] = {
-    #             'status': attendance_record.status,
-    #             'time': attendance_record.time,
-    #         }
-    #     else:
-    #         attendance_data[employee.id] = {
-    #             'status': 'not yet marked',  # No attendance record
-    #             'time': 'not yet marked',    # No attendance time
-    #         }
 
-    # Render the template with the department, employees, and attendance data
+@login_required
+def viewdepartment(request, department_id):
+    # Fetch the department based on the provided department_id
+    department = Department.objects.get(id=department_id)
+    
+    # Get all employees associated with the department
+    employees = Employee.objects.filter(department_name_id=department_id)
+    
+
+    # Render the template with the department and employees
     return render(request, 'viewdepartments.html', {
         'department': department,
         'employees': employees,
-        'attendance_data': attendance_data,
     })
+
+
+
+# def get_today_attendance(employee_id):
+
+#     today = timezone.now().date()
+
+#     attendance = Attendance.objects.filter(employee_id=employee_id, date=today)
+
+#     if attendance.exists():
+
+#         return attendance.first()
+
+#     else:
+
+#         return None
     
+# @login_required
+# def viewdepartment(request, department_id):
+#     # Fetch the department based on the provided department_id
+#     department = Department.objects.get(id=department_id)
+    
+#     # Get all employees associated with the department
+#     employees = Employee.objects.filter(department_name_id=department_id)
+    
+#     # Initialize an empty dictionary to store attendance data
+#     attendance_data = {}
+    
+#     # Loop through each employee and get their attendance for today
+#     for employee in employees:
 
+#         attendance = get_today_attendance(employee.id)
 
+#         if attendance:
 
+#             attendance_data[employee.id] = {
 
+#                 'status': attendance.status,
+
+#                 'time': attendance.time,
+
+#             }
+
+#         else:
+
+#             attendance_data[employee.id] = {
+
+#                 'status': 'not yet marked',
+
+#                 'time': 'not yet marked',
+
+#             }
+    
+#     # Render the template with the department, employees, and attendance data
+#     return render(request, 'viewdepartments.html', {
+#         'department': department,
+#         'employees': employees,
+#         'attendance_data': attendance_data,
+#     })
 
