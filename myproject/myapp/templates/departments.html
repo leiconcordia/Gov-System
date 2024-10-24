@@ -1,4 +1,3 @@
-
 {% extends 'index.html' %}
 
 {% block title %}Departments{% endblock %}
@@ -6,35 +5,50 @@
 {% block content %}
 
 <section class="home">
-<p>Department </p>
-<table class="table">
-  <thead>
-      <tr>
-          <th scope="col">Departments</th>
-          <th scope="col">Employees</th>
-          <th scope="col">Late</th>
-          <th scope="col">Absent</th>
-          <th scope="col">On-time</th>
-          <th scope="col">Action</th>
-      </tr>
-  </thead>
-  <tbody>
-      {% for department in departments %}
-      <tr>
-          <th scope="row">{{ department.name }}</th>
-          <td>{{ department.employees.count }}</td> <!-- Assuming you have a way to count employees -->
-          <td>{{ department.late_count }}</td> <!-- Replace with actual late count logic -->
-          <td>{{ department.absent_count }}</td> <!-- Replace with actual absent count logic -->
-          <td>{{ department.on_time_count }}</td> <!-- Replace with actual on-time count logic -->
-          <td><a href="{% url 'viewdepartments' department.id %}">View</a></td>
+    <p>Department</p>
 
-      </tr>
-      {% empty %}
-      <tr>
-          <td colspan="6">No departments available</td>
-      </tr>
-      {% endfor %}
-  </tbody>
-</table>
+    <div>
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}">
+    </div>
+    
+
+    <style>
+        .date-input {
+            width: 200px; /* Adjust the width as needed */
+            padding: 5px; /* Optional: Add some padding for better appearance */
+            margin-top: 10px; /* Optional: Add some space above the input */
+        }
+    </style>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Departments</th>
+                <th scope="col">Employees</th>
+                <th scope="col">Late</th>
+                <th scope="col">Absent</th>
+                <th scope="col">On-time</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for department in departments %}
+            <tr>
+                <th scope="row">{{ department.name }}</th>
+                <td>{{ department.employee_count }}</td> 
+                <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
+                <td>{% if department.absent_count > 0 %}{{ department.absent_count }}{% else %} {% endif %}</td> 
+                <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td> 
+                <td><a href="{% url 'viewdepartments' department.id %}">View</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No departments available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
 </section>
+
 {% endblock %}

@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from .models import Department,Employee, Attendance
 from django.utils import timezone
 import pytz
-    
+from django.db.models import Count, Q
 
 
 # User = get_user_model()
@@ -95,12 +95,24 @@ def login_view(request):
     return render(request, 'login.html')
 
 @login_required
+
 def departments(request):
-    departments = Department.objects.all()
+    current_date = timezone.now().date()  # Get today's date
+
+    departments = Department.objects.annotate(
+        employee_count=Count('employees'),
+        late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=current_date)),
+        absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=current_date)),
+        on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=current_date))
+    )
+    
     context = {
-        "departments": departments  # Use a plural name for clarity
+        "departments": departments,  # Use a plural name for clarity
+        "default_date": current_date  # Add today's date to the context
     }
     return render(request, 'departments.html', context)
+
+
 
 @login_required
 def reports(request):

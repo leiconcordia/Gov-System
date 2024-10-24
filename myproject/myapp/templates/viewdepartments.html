@@ -25,7 +25,12 @@
     <td>{{ employee.status }}</td>
     <td>{{ employee.time }}</td>
   </tr>
-{% endfor %}
+  {% empty %}
+      <tr>
+          <td colspan="6">No attendance available</td>
+      </tr>
+      {% endfor %}
+
 
   </tbody>
 </table>

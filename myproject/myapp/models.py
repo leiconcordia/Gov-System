@@ -14,6 +14,7 @@ class Employee(models.Model):
     first_name = models.CharField(max_length=120)
     last_name = models.CharField(max_length=120)
     department_name = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='employees')
+    
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
