@@ -4,27 +4,33 @@
 
 {% block content %}
 <section class="home">
-    <p>Recent attendance for today </p>
+    <p>Recent Attendance for Today</p>
     
     <table class="table">
         <thead>
-          <tr>
-            <th scope="col">Employee ID</th>
-            <th scope="col">Employee Name</th>
-            <th scope="col">Time in</th>
-            <th scope="col">status</th>
-           
-          </tr>
+            <tr>
+                <th scope="col">Employee ID</th>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Time In</th>
+
+                <th scope="col">Status</th>
+            </tr>
         </thead>
         <tbody>
-          <tr>
-            <th scope="row">9084367</th>
-            <td>Mark</td>
-            <td>7:34 am</td>
-            <td>Late</td>
-          </tr>
-         
+            {% for record in attendance_records %}
+            <tr>
+                <th scope="row">{{ record.employee.employee_id }}</th>
+                <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
+                <td>{{ record.time|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
+                <td>{{ record.status }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No attendance records for today.</td>
+            </tr>
+            {% endfor %}
         </tbody>
-      </table>
-    </section>
+    </table>
+</section>
+
 {% endblock %}

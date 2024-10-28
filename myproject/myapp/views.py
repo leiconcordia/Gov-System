@@ -66,7 +66,17 @@ def checkin(request):
 
 @login_required
 def admin_dashboard_view(request):
-    return render(request, 'admin_dashboard.html')
+    # Get today's date
+    today = timezone.now().date()
+    
+    # Fetch attendance records for today
+    attendance_records = Attendance.objects.filter(date=today)
+
+    context = {
+        'attendance_records': attendance_records
+    }
+    
+    return render(request, 'admin_dashboard.html', context)
 
 def logout_view(request):
     logout(request)
