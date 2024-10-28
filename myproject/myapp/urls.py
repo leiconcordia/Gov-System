@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .views import viewdepartment
 
 urlpatterns = [
     path('', views.checkin, name='checkin_page'),
@@ -14,7 +15,8 @@ urlpatterns = [
     path('attendance/', views.attendance_record, name='attendance_record'),
     path('employeelist/', views.employeelist, name='employeelist'),
     
-    path('department/<int:department_id>/', views.viewdepartment, name='viewdepartments'),
+    path('departments/view/<int:department_id>/', viewdepartment, name='viewdepartment'),
+    
     path('logout/', views.logout_view, name='logout'),
     
     

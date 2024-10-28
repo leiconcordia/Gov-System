@@ -95,20 +95,22 @@ def login_view(request):
     return render(request, 'login.html')
 
 @login_required
-
 def departments(request):
-    current_date = timezone.now().date()  # Get today's date
+    # Get the date from the request, or use today's date if not provided
+    date_str = request.GET.get('date', timezone.now().date().isoformat())
+    selected_date = timezone.datetime.fromisoformat(date_str).date()
 
     departments = Department.objects.annotate(
         employee_count=Count('employees'),
-        late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=current_date)),
-        absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=current_date)),
-        on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=current_date))
+        late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=selected_date)),
+        absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=selected_date)),
+        on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=selected_date))
     )
     
     context = {
         "departments": departments,  # Use a plural name for clarity
-        "default_date": current_date  # Add today's date to the context
+        "default_date": selected_date,     # Add the selected date to the context
+        
     }
     return render(request, 'departments.html', context)
 
@@ -165,19 +167,40 @@ def employeelist(request):
 
 
 
+def get_selected_date(request):
+    date_str = request.GET.get('date', timezone.now().date().isoformat())
+    return timezone.datetime.fromisoformat(date_str).date()
+
+
+@login_required
+def departments(request):
+    selected_date = get_selected_date(request)
+
+    departments = Department.objects.annotate(
+        late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=selected_date)),
+        absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=selected_date)),
+        on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=selected_date))
+    )
     
+    context = {
+        "departments": departments,
+        "default_date": selected_date,
+    }
+    return render(request, 'departments.html', context)
 
 @login_required
 def viewdepartment(request, department_id):
-    # Fetch the department based on the provided department_id
     department = Department.objects.get(id=department_id)
-    current_date = timezone.now().date()
-    # Get all employees associated with the department
-    employees = Attendance.objects.filter(employee__department_name=department, date=current_date)
+    selected_date = get_selected_date(request)
+    
+    employees = Employee.objects.filter(department_name=department)
+    attendance_records = Attendance.objects.filter(employee__in=employees, date=selected_date)
    
     return render(request, 'viewdepartments.html', {
         'department': department,
         'employees': employees,
+        'attendance_records': attendance_records,
+        'default_date': selected_date,
     })
 
 

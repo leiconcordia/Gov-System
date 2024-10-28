@@ -5,34 +5,32 @@
 {% block content %}
 
 <section class="home">
-<p>{{ department.name }}</p>
-<table class="table">
-  <thead>
-      <tr>
-          
-          <th scope="col">Employee ID</th>
-          <th scope="col">Employee Name</th>
-          <th scope="col">Status</th>
-          <th scope="col">Time</th>
-
-      </tr>
-  </thead>
-  <tbody>
-    {% for employee in employees %}
-  <tr>
-    <th scope="row">{{ employee.employee.employee_id }}</th>
-    <td>{{ employee.employee.first_name }} {{ employee.employee.last_name }}</td>
-    <td>{{ employee.status }}</td>
-    <td>{{ employee.time }}</td>
-  </tr>
-  {% empty %}
-      <tr>
-          <td colspan="6">No attendance available</td>
-      </tr>
-      {% endfor %}
-
-
-  </tbody>
-</table>
+    <p>{{ department.name }}</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Employee ID</th>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Time</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for record in attendance_records %}
+          <tr>
+              <th scope="row">{{ record.employee.employee_id }}</th>
+              <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
+              <td>{{ record.status }}</td>
+              <td>{{ record.time }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+              <td colspan="4">No attendance available</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+      
+    </table>
 </section>
+
 {% endblock %}

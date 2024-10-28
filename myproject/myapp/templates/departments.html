@@ -7,10 +7,13 @@
 <section class="home">
     <p>Department</p>
 
-    <div>
-        <label for="date">Select Date:</label>
-        <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}">
-    </div>
+    <form method="get" action="{% url 'departments' %}">
+        <div>
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}">
+            <button type="submit">Fetch Data</button>
+        </div>
+    </form>
     
 
     <style>
@@ -20,6 +23,7 @@
             margin-top: 10px; /* Optional: Add some space above the input */
         }
     </style>
+
     <table class="table">
         <thead>
             <tr>
@@ -35,11 +39,14 @@
             {% for department in departments %}
             <tr>
                 <th scope="row">{{ department.name }}</th>
-                <td>{{ department.employee_count }}</td> 
+                <td>{{ department.employees.count }}</td> 
                 <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
                 <td>{% if department.absent_count > 0 %}{{ department.absent_count }}{% else %} {% endif %}</td> 
                 <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td> 
-                <td><a href="{% url 'viewdepartments' department.id %}">View</a></td>
+                <td>
+                    <a href="{% url 'viewdepartment' department.id %}?date={{ default_date|date:'Y-m-d' }}">View Department</a>
+
+                </td>
             </tr>
             {% empty %}
             <tr>
@@ -47,7 +54,6 @@
             </tr>
             {% endfor %}
         </tbody>
-        
     </table>
 </section>
 
