@@ -12,13 +12,14 @@
                 <th scope="col">Employee Name</th>
                 <th scope="col">Employee ID</th>
                 <th scope="col">Department</th>
+                <th scope="col">Actions</th>
                 
               </tr>
             </thead>
             <tbody>
               <tr>
                 {% for employee in employee %}
-                <th scope="row">{{ employee.last_name }} {{ employee.first_name }}</th>
+                <th scope="row"> {{ employee.first_name }} {{ employee.last_name }}</th>
                 <td>{{ employee.employee_id }}</td>
                 <td>{{ employee.department_name }}</td>
                 <td> 

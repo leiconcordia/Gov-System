@@ -94,25 +94,25 @@ def login_view(request):
 
     return render(request, 'login.html')
 
-@login_required
-def departments(request):
-    # Get the date from the request, or use today's date if not provided
-    date_str = request.GET.get('date', timezone.now().date().isoformat())
-    selected_date = timezone.datetime.fromisoformat(date_str).date()
+# @login_required
+# def departments(request):
+#     # Get the date from the request, or use today's date if not provided
+#     date_str = request.GET.get('date', timezone.now().date().isoformat())
+#     selected_date = timezone.datetime.fromisoformat(date_str).date()
 
-    departments = Department.objects.annotate(
-        employee_count=Count('employees'),
-        late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=selected_date)),
-        absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=selected_date)),
-        on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=selected_date))
-    )
+#     departments = Department.objects.annotate(
+#         employee_count=Count('employees'),
+#         late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=selected_date)),
+#         absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=selected_date)),
+#         on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=selected_date))
+#     )
     
-    context = {
-        "departments": departments,  # Use a plural name for clarity
-        "default_date": selected_date,     # Add the selected date to the context
+#     context = {
+#         "departments": departments,  # Use a plural name for clarity
+#         "default_date": selected_date,     # Add the selected date to the context
         
-    }
-    return render(request, 'departments.html', context)
+#     }
+#     return render(request, 'departments.html', context)
 
 
 
