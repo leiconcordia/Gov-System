@@ -44,7 +44,7 @@
           </a>
           <span class="tooltip">Add employee</span>
         </li>
-        <li>
+        {% comment %} <li>
             <a href="{% url 'attendance_record' %}">
             <i class="bx bx-layer"></i>
             <span class="title">Attendance record</span>
@@ -57,7 +57,7 @@
             <span class="title">Reports</span>
           </a>
           <span class="tooltip">Reports</span>
-        </li>
+        </li> {% endcomment %}
         <li>
           <a href="{% url 'logout' %}">
             <i class="bx bx-reply"></i>
@@ -66,13 +66,13 @@
           <span class="tooltip">Log out</span>
         </li>
       </ul>
-      <div class="theme-wrapper">
+      {% comment %} <div class="theme-wrapper">
         <i class="bx bxs-moon theme-icon"></i>
         <p>Dark Theme</p>
         <div class="theme-btn">
           <span class="theme-ball"></span>
         </div>
-      </div>
+      </div> {% endcomment %}
       
     </section>
     {% block content %}

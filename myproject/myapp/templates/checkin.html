@@ -13,9 +13,9 @@
     <div class="form-container">
         
         <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
-            {% csrf_token %}
+            {% csrf_token %}~
             <h2for="employee_input">Enter Employee ID or Name (First Last):</h2>
-            <input type="text" id="employee-name" placeholder="First name last name" name="employee_input"  required>
+            <input type="text" id="employee-name" placeholder="Enter Employee ID" name="employee_input"  required>
             <button type="submit" id="checkin-btn">Check In</button>
         </form>
        

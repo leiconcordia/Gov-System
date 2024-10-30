@@ -15,6 +15,21 @@
         </div>
     </form>
     
+    <script>
+        // Get today's date in the format YYYY-MM-DD
+        const today = new Date().toISOString().split("T")[0];
+        const dateInput = document.getElementById("date");
+        
+        // Set the max attribute to disable future dates
+        dateInput.setAttribute("max", today);
+        
+        // Set today's date as the default value if no other date is set
+        if (!dateInput.value) {
+            dateInput.value = today;
+        }
+    </script>
+    
+    
 
     <style>
         .date-input {
