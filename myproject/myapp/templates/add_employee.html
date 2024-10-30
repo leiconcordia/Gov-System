@@ -1,14 +1,19 @@
-{% extends 'index.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/outside.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
 
-{% block title %}Employee{% endblock %}
-
-{% block content %}
-
-<section class="home">
-    <p>Employee Registration Form</p>
-
+<body>
+    
     <div class="form-container">
-      <form action="{% url 'add_employee' %}" method="POST">
+        
+        <form action="{% url 'signup' %}" method="POST">
             {% csrf_token %}
             <label for="firstName">First Name:</label>
             <input type="text" id="firstName" name="firstName" required>
@@ -19,22 +24,32 @@
             <label for="employeeId">Employee ID:</label>
             <input type="text" id="employeeId" name="employeeId" required>
         
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        
             <label for="department">Department:</label>
             <select id="department" name="department_name" required>
-                
-                    {% for departments in departments %}
+                {% for departments in departments %}
                     <option value="{{ departments.id }}">{{ departments.name }}</option>
-                    {% empty %}
-                        <option value="">No departments available</option>
-                    {% endfor %}
+                {% empty %}
+                    <option value="">No departments available</option>
+                {% endfor %}
             </select>
             
+            <button type="submit">Signup</button> 
+            <p>Already have an account? <a href="{% url 'signin' %}">Sign in</a></p><!-- Changed the button text to reflect the action -->
+        </form>
+       
         
-            <button type="submit">Submit</button> <!-- Ensure this is included -->
-        </form> 
-        <button class="add-employee-btn" onclick="window.location.href='{% url 'employeelist' %}'">back</button>
+
+        
+    </div>
+
 
     </div>
-</section>
-
-{% endblock %}
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

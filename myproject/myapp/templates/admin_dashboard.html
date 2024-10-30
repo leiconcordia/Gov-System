@@ -12,8 +12,9 @@
                 <th scope="col">Employee ID</th>
                 <th scope="col">Employee Name</th>
                 <th scope="col">Time In</th>
-
-                <th scope="col">Status</th>
+                <th scope="col">Arrival Status</th>
+                <th scope="col">Time out</th>
+                <th scope="col">Leaving Status</th>
             </tr>
         </thead>
         <tbody>
@@ -21,8 +22,10 @@
             <tr>
                 <th scope="row">{{ record.employee.employee_id }}</th>
                 <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
-                <td>{{ record.time|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
-                <td>{{ record.status }}</td>
+                <td>{{ record.time_in|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
+                <td>{{ record.arrival_status }}</td>
+                <td>{{ record.time_out|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
+                <td>{{ record.timeout_status }}</td>
             </tr>
             {% empty %}
             <tr>

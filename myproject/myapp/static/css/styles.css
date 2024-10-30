@@ -303,8 +303,20 @@
   padding: 20px;
   border-radius: 15px;
   box-shadow: 20px 5px 20px rgba(0, 0, 0, 0.1);
-  width: 500px;
-  height: 100%;
+  width: 400px;
+  
+  max-height: 600px !important;
+  margin: 0 auto;
+  margin-top: 25px !important;
+  text-align: left;
+}
+.signin-form-container {
+  background-color: rgb(216, 216, 216);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 20px 5px 20px rgba(0, 0, 0, 0.1);
+  width: 350px;
+  height: 50%;
   margin: 0 auto;
   margin-top: 25px !important;
 }

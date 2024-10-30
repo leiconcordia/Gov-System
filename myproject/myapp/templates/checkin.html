@@ -13,19 +13,36 @@
     <div class="form-container">
         
         <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
-            {% csrf_token %}~
-            <h2for="employee_input">Enter Employee ID or Name (First Last):</h2>
-            <input type="text" id="employee-name" placeholder="Enter Employee ID" name="employee_input"  required>
-            <button type="submit" id="checkin-btn">Check In</button>
+            {% csrf_token %}
+            <h for="employee_input">Enter Employee ID or Name (First Last):</h3>
+            <input type="text" id="employee-name" placeholder="Enter Employee ID" name="employee_input" required>
+            <button type="submit" id="checkin-btn">Log in</button>
         </form>
        
-        
-
-        
     </div>
 
-
-    </div>
     <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        function updateButtonText() {
+            // Get the current date and time in the Philippines (UTC+8)
+            const now = new Date();
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const phTime = new Date(utcTime + (8 * 60 * 60 * 1000));
+    
+            // Check if the time is past 12:00 PM
+            const hours = phTime.getHours();
+            const minutes = phTime.getMinutes();
+    
+            const loginButton = document.getElementById('checkin-btn');
+    
+            if (hours > 12 || (hours === 12 && minutes > 0)) {
+                loginButton.textContent = 'Log Out';
+            }
+        }
+    
+        // Run the function when the page loads
+        window.onload = updateButtonText;
+    </script>
+    
 </body>
 </html>
