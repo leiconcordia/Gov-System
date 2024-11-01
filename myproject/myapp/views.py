@@ -10,32 +10,72 @@ import pytz
 from django.db.models import Count, Q
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseNotFound
+from django.contrib import messages
+from django.contrib.auth.hashers import check_password
 
-
-# def signin(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-
-#         try:
-#             # Fetch the employee by username
-#             employee = Employee.objects.get(username=username)
-
-#             # Compare the provided password with the hashed password
-#             if check_password(password, employee.password):  # Secure comparison
-#                 # Log the employee in by storing their ID in the session
-#                 request.session['employee_id'] = employee.id
-#                 return redirect('employee-dashboard')  # Redirect to the employee dashboard
-#             else:
-#                 messages.error(request, "Invalid username or password.")
-#         except Employee.DoesNotExist:
-#             messages.error(request, "Invalid username or password.")
-
-#     return render(request, 'signin.html')
-
-
+@login_required
 def signin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        try:
+            # Fetch the employee by username
+            employee = Employee.objects.get(username=username)
+
+            # Compare the provided password with the hashed password
+            if check_password(password, employee.password):  # Secure comparison
+                # Log the employee in by storing their ID in the session
+                request.session['employee_id'] = employee.employee_id
+                return redirect('employee-dashboard')  # Redirect to the employee dashboard
+            else:
+                messages.error(request, "Invalid username or password.")
+        except Employee.DoesNotExist:
+            messages.error(request, "Invalid username or password.")
+
     return render(request, 'signin.html')
+
+
+
+
+
+
+def employee_dashboard(request):
+    print("Employee dashboard view accessed") 
+    employee_id = request.session.get('employee_id')
+    
+    if not employee_id:
+        return redirect('signin')
+    # Assuming employee_id is being passed as a string
+   
+      # Fetch employee using get_object_or_404
+    employee = Employee.objects.get( employee_id=employee_id)
+
+    # Get the selected month from the request
+    selected_month = request.GET.get('month')  # Example: '2023-10' for October 2023
+    
+    attendance_records = Attendance.objects.filter(employee=employee)  # Default to all records
+    
+    # Filter attendance records if a month is selected
+    if selected_month:
+        try:
+            year, month = map(int, selected_month.split('-'))  # Unpack year and month
+            attendance_records = Attendance.objects.filter(
+                employee=employee,
+                date__year=year,
+                date__month=month
+            )
+        except ValueError:
+            # Handle the error if the format is incorrect
+            attendance_records = Attendance.objects.filter(employee=employee)
+    return render(request, 'employee_dashboard.html', {
+        'employee': employee,
+        'attendance_records': attendance_records,
+        'selected_month': selected_month,
+    })
+
+
+
 
 def signup(request):
     if request.method == 'POST':
@@ -181,11 +221,6 @@ def login_view(request):
 
 
 
-
-@login_required
-def attendance_record(request):
-    return render(request, 'attendance_record.html')
-
 def employeelist(request):
     search_query = request.GET.get('search', '')
     if search_query:
@@ -211,7 +246,6 @@ def view_employee(request, employee_id):
         employee = Employee.objects.get(employee_id=employee_id)
     except Employee.DoesNotExist:
         return HttpResponseNotFound("Employee not found.")
-
     # Get the selected month from the request
     selected_month = request.GET.get('month')  # Example: '2023-10' for October 2023
     
@@ -229,13 +263,14 @@ def view_employee(request, employee_id):
         except ValueError:
             # Handle the error if the format is incorrect
             attendance_records = Attendance.objects.filter(employee=employee)
-
     return render(request, 'view_employee.html', {
         'employee': employee,
         'attendance_records': attendance_records,
         'selected_month': selected_month,
     })
-    
+
+
+
 
 
 

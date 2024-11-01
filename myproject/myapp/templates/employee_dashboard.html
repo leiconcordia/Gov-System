@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}ORMOC LGU ATTENDANCE{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+ {% block content %}
+<section class="home">
+    <h1>{{ employee.first_name }} {{ employee.last_name }}</h1>
+
+    <!-- Month and Year Selection -->
+    <form method="GET" action="">
+        <label for="month">Select Month and Year:</label>
+        <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <style>
+        .month-input{
+            width: 200px; /* Adjust the width as needed */
+            padding: 5px; /* Optional: Add some padding for better appearance */
+            margin-top: 10px; 
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the current date
+            const today = new Date();
+            
+            // Format the current month and year in YYYY-MM format
+            const currentYear = today.getFullYear();
+            const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+            const currentMonthYear = `${currentYear}-${currentMonth}`;
+    
+            // Set the input value to the current month
+            const monthInput = document.getElementById("month");
+            monthInput.value = currentMonthYear; // Set the current month as the value
+    
+            // Set the max attribute to the current month to disable future months
+            monthInput.setAttribute("max", currentMonthYear);
+        });
+    </script>
+    
+    <a href="{% url 'employee-dashboard' %}" class="btn">Back</a>
+    <a href="{% url 'signin' %}" class="btn">logout</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Time In</th>
+                <th scope="col">Arrival Status</th>
+                <th scope="col">Time Out</th>
+                <th scope="col">Leaving Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance_records %}
+            <tr>
+                <th scope="row">{{ record.date }}</th>
+                <td>{{ record.time_in|time:"g:i a" }}</td>
+                <td>{{ record.arrival_status }}</td>
+                <td>{{ record.time_out|time:"g:i a" }}</td>
+                <td>{{ record.timeout_status }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No attendance records available for this month.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+
+
+
+{% endblock %}
