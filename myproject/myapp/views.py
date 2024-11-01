@@ -9,10 +9,30 @@ from django.utils import timezone
 import pytz
 from django.db.models import Count, Q
 from django.contrib.auth.hashers import make_password
+from django.http import HttpResponseNotFound
 
-# User = get_user_model()
-# user = User.objects.get(username='admin')  # Replace with your username
-# print(user.password)  # This will show a hash, confirming the user exists.
+
+# def signin(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+
+#         try:
+#             # Fetch the employee by username
+#             employee = Employee.objects.get(username=username)
+
+#             # Compare the provided password with the hashed password
+#             if check_password(password, employee.password):  # Secure comparison
+#                 # Log the employee in by storing their ID in the session
+#                 request.session['employee_id'] = employee.id
+#                 return redirect('employee-dashboard')  # Redirect to the employee dashboard
+#             else:
+#                 messages.error(request, "Invalid username or password.")
+#         except Employee.DoesNotExist:
+#             messages.error(request, "Invalid username or password.")
+
+#     return render(request, 'signin.html')
+
 
 def signin(request):
     return render(request, 'signin.html')
@@ -153,62 +173,14 @@ def login_view(request):
 
     return render(request, 'login.html')
 
-# @login_required
-# def departments(request):
-#     # Get the date from the request, or use today's date if not provided
-#     date_str = request.GET.get('date', timezone.now().date().isoformat())
-#     selected_date = timezone.datetime.fromisoformat(date_str).date()
-
-#     departments = Department.objects.annotate(
-#         employee_count=Count('employees'),
-#         late_count=Count('employees', filter=Q(employees__attendance__status='late', employees__attendance__date=selected_date)),
-#         absent_count=Count('employees', filter=Q(employees__attendance__status='absent', employees__attendance__date=selected_date)),
-#         on_time_count=Count('employees', filter=Q(employees__attendance__status='ontime', employees__attendance__date=selected_date))
-#     )
-    
-#     context = {
-#         "departments": departments,  # Use a plural name for clarity
-#         "default_date": selected_date,     # Add the selected date to the context
-        
-#     }
-#     return render(request, 'departments.html', context)
 
 
 
 
 
 
-# @login_required
-# def add_employee(request):
-#     if request.method == 'POST':
-#         # Extract data from the form
-#         employee_id = request.POST['employeeId']
-#         first_name = request.POST['firstName']
-#         last_name = request.POST['lastName']
-#         department_id = request.POST['department_name']  # Assuming department is passed as ID
 
-#         # Create a new Employee instance
-#         employee = Employee(
-#             employee_id=employee_id,
-#             first_name=first_name,
-#             last_name=last_name,
-#             department_name_id=department_id  # Use the department ID here
-#         )
-        
-#         # Save the employee to the database
-#         employee.save()
 
-#         # Redirect to the employee list page or a success page
-#         return redirect('employeelist')  # Adjust this to your actual success page
-
-#     # If GET request, fetch all departments to display in the form
-#     departments = Department.objects.all()
-
-#     context = {
-#         "departments": departments  # Use a plural name for clarity
-#     }
-    
-#     return render(request, 'add_employee.html', context)
 
 @login_required
 def attendance_record(request):
@@ -229,6 +201,43 @@ def employeelist(request):
         "employee": employee
     }
     return render(request, 'employeelist.html', context)
+
+
+@login_required
+def view_employee(request, employee_id):
+    # Assuming employee_id is being passed as a string
+    try:
+        # Fetch employee by employee_id (which is a CharField)
+        employee = Employee.objects.get(employee_id=employee_id)
+    except Employee.DoesNotExist:
+        return HttpResponseNotFound("Employee not found.")
+
+    # Get the selected month from the request
+    selected_month = request.GET.get('month')  # Example: '2023-10' for October 2023
+    
+    attendance_records = Attendance.objects.filter(employee=employee)  # Default to all records
+    
+    # Filter attendance records if a month is selected
+    if selected_month:
+        try:
+            year, month = map(int, selected_month.split('-'))  # Unpack year and month
+            attendance_records = Attendance.objects.filter(
+                employee=employee,
+                date__year=year,
+                date__month=month
+            )
+        except ValueError:
+            # Handle the error if the format is incorrect
+            attendance_records = Attendance.objects.filter(employee=employee)
+
+    return render(request, 'view_employee.html', {
+        'employee': employee,
+        'attendance_records': attendance_records,
+        'selected_month': selected_month,
+    })
+    
+
+
 
 
 def get_selected_date(request):

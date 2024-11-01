@@ -32,7 +32,7 @@
                 <td>{{ employee.first_name }} {{ employee.last_name }}</td>
                 <td>{{ employee.department_name }}</td>
                 <td> 
-                    {% comment %} <a href="{% url 'view_employee' employee.employee_id %}">view records</a>  {% endcomment %}
+                     <a href="{% url 'view_employee' employee.employee_id %}">view records</a> 
                     {% comment %} <a href="{% url 'edit_employee' employee.employee_id %}">edit</a>
                     <a href="{% url 'delete_employee' employee.employee_id %}">delete</a> {% endcomment %}
                 </td>
