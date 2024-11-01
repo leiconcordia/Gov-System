@@ -214,14 +214,21 @@ def login_view(request):
 def attendance_record(request):
     return render(request, 'attendance_record.html')
 
-@login_required
 def employeelist(request):
-    employee = Employee.objects.all()
+    search_query = request.GET.get('search', '')
+    if search_query:
+        employee = Employee.objects.filter(
+            Q(employee_id__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+    else:
+        employee = Employee.objects.all()
+
     context = {
         "employee": employee
- }
+    }
     return render(request, 'employeelist.html', context)
-
 
 
 def get_selected_date(request):

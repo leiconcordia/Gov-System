@@ -5,38 +5,45 @@
 {% block content %}
 
 <section class="home">
-    <p>Employee list</p>-
-        <table class="table">
-            <thead>
-              <tr>
+    <p>Employee list</p>
+    
+    <!-- Search Bar -->
+    <!-- Search Bar -->
+<form method="GET" action="{% url 'employeelist' %}">
+  <input type="text" name="search" placeholder="Search by ID or Name" value="{{ request.GET.search }}" />
+  <button type="submit">Search</button>
+  <a href="{% url 'employeelist' %}" class="btn">Back</a> <!-- Back button -->
+</form>
+
+    
+    <table class="table">
+        <thead>
+            <tr>
                 <th scope="col">Employee ID</th>
                 <th scope="col">Employee Name</th>
                 <th scope="col">Department</th>
                 <th scope="col">Actions</th>
-                
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {% for employee in employee %}
-                <th scope="row">{{ employee.employee_id }} </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employee %}
+            <tr>
+                <th scope="row">{{ employee.employee_id }}</th>
                 <td>{{ employee.first_name }} {{ employee.last_name }}</td>
                 <td>{{ employee.department_name }}</td>
                 <td> 
-                  <a>view</a> 
-                  <a>edit</a>
-                  <a>delete</a>
+                    {% comment %} <a href="{% url 'view_employee' employee.employee_id %}">view records</a>  {% endcomment %}
+                    {% comment %} <a href="{% url 'edit_employee' employee.employee_id %}">edit</a>
+                    <a href="{% url 'delete_employee' employee.employee_id %}">delete</a> {% endcomment %}
                 </td>
-                
-    
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          
-
-         
-
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">Employee doesnt exist</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 
 {% endblock %}
