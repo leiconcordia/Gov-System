@@ -13,9 +13,9 @@
     <h1>{{ employee.first_name }} {{ employee.last_name }}</h1>
 
     <!-- Month and Year Selection -->
-    <form method="GET" action="">
+    <form method="GET" action="" class="parent-calendar-employee">
         <label for="month">Select Month and Year:</label>
-        <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" required>
+        <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" class="calendar"required>
         <button type="submit">Submit</button>
     </form>
 

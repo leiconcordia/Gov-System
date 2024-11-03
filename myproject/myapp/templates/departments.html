@@ -7,10 +7,10 @@
 <section class="home">
     <p>Department</p>
 
-    <form method="get" action="{% url 'departments' %}">
+    <form method="get" action="{% url 'departments' %}" class="parent-calendar">
         <div>
             <label for="date">Select Date:</label>
-            <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}">
+            <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}" class="calendar">
             <button type="submit">Fetch Data</button>
         </div>
     </form>
