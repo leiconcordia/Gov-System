@@ -70,6 +70,20 @@
   margin-right: 10px;
 }
 
+
+.nav-links li.active a {
+  background: var(--color-hover); /* Sets the active background color */
+}
+
+.nav-links li.active i {
+  color: var(--color-white); /* Sets the active icon color */
+}
+
+.nav-links li.active a .title {
+  color: var(--color-white); /* Sets the active text color */
+}
+
+
 .sidebar.expand .nav-header .btn-menu {
   margin-right: 0;
 }

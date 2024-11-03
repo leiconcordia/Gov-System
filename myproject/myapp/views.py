@@ -13,7 +13,6 @@ from django.http import HttpResponseNotFound
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 
-@login_required
 def signin(request):
     if request.method == 'POST':
         username = request.POST.get('username')

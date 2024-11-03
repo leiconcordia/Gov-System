@@ -23,28 +23,41 @@
         <i class="bx bx-menu btn-menu"></i>
       </div>
       <ul class="nav-links">
-        
-        <li>
-            <a href="{% url 'admin_dashboard' %}">
-              <i class="bx bx-home-alt-2"></i>
-              <span class="title">Home</span>
+        {% url 'admin_dashboard' as admin_dashboard_url %}
+        {% url 'departments' as departments_url %}
+        {% url 'employeelist' as employeelist_url %}
+        {% url 'logout' as logout_url %}
+      
+        <li class="{% if request.path == admin_dashboard_url %}active{% endif %}">
+            <a href="{{ admin_dashboard_url }}">
+                <i class="bx bx-home-alt-2"></i>
+                <span class="title">Home</span>
             </a>
             <span class="tooltip">Home</span>
-          </li>          
-        <li>
-          <a href="{% url 'departments' %}">
-            <i class="bx bx-network-chart"></i>
-            <span class="title">Departments</span>
-          </a>
-          <span class="tooltip">Departments</span>
         </li>
-        <li>
-          <a href="{% url 'employeelist' %}">
-            <i class="bx bx-user-plus"></i>
-            <span class="title">Add employee </span>
-          </a>
-          <span class="tooltip">Add employee</span>
+        <li class="{% if request.path == departments_url %}active{% endif %}">
+            <a href="{{ departments_url }}">
+                <i class="bx bx-network-chart"></i>
+                <span class="title">Departments</span>
+            </a>
+            <span class="tooltip">Departments</span>
         </li>
+        <li class="{% if request.path == employeelist_url %}active{% endif %}">
+            <a href="{{ employeelist_url }}">
+                <i class="bx bx-user"></i>
+                <span class="title">Employee List</span>
+            </a>
+            <span class="tooltip">Employee List</span>
+        </li>
+        <li class="{% if request.path == logout_url %}active{% endif %}">
+            <a href="{{ logout_url }}">
+                <i class="bx bx-reply"></i>
+                <span class="title">Log out</span>
+            </a>
+            <span class="tooltip">Log out</span>
+        </li>
+      </ul>
+      
         {% comment %} <li>
             <a href="{% url 'attendance_record' %}">
             <i class="bx bx-layer"></i>
@@ -59,21 +72,21 @@
           </a>
           <span class="tooltip">Reports</span>
         </li> {% endcomment %}
-        <li>
+        {% comment %} <li>
           <a href="{% url 'logout' %}">
             <i class="bx bx-reply"></i>
             <span class="title">Log out</span>
           </a>
           <span class="tooltip">Log out</span>
         </li>
-      </ul>
-      {% comment %} <div class="theme-wrapper">
+      </ul> {% endcomment %}
+       <div class="theme-wrapper">
         <i class="bx bxs-moon theme-icon"></i>
         <p>Dark Theme</p>
         <div class="theme-btn">
           <span class="theme-ball"></span>
         </div>
-      </div> {% endcomment %}
+      </div> 
       
     </section>
     {% block content %}

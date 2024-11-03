@@ -14,10 +14,11 @@
         
         <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
             {% csrf_token %}
-            <h for="employee_input">Enter Employee ID or Name (First Last):</h3>
+            <label for="employee_input">Enter Employee ID or Name (First Last):</label>
             <input type="text" id="employee-name" placeholder="Enter Employee ID" name="employee_input" required>
             <button type="submit" id="checkin-btn">Log in</button>
         </form>
+        
        
     </div>
 
