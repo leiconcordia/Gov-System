@@ -13,6 +13,8 @@ from django.http import HttpResponseNotFound
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 
+
+
 def signin(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -75,7 +77,7 @@ def employee_dashboard(request):
 
 
 
-
+@login_required
 def signup(request):
     if request.method == 'POST':
         # Extract data from the form
@@ -100,7 +102,7 @@ def signup(request):
         employee.save()
 
         # Redirect to the employee list page or a success page
-        return redirect('signin')  # Adjust this to your actual success page
+        return redirect('employeelist')  # Adjust this to your actual success page
 
     # If GET request, fetch all departments to display in the form
     departments = Department.objects.all()

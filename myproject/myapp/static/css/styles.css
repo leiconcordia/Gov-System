@@ -372,22 +372,21 @@ button:hover {
   background-color: #45a049;
 }
 
+/* Scrollable table container */
+.table-container {
+  width: 90%;               /* Adjust width as needed */
+  max-height: 300px;        /* Height constraint to enable scrolling */
+  overflow-y: auto;         /* Enables vertical scrolling */
+  margin: 30px auto;        /* Centering and spacing */
+  border-radius: 10px;      /* Rounding table edges */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-
-
-
-
-
-
+/* Table styling */
 .table {
-  width: 900px;
-  margin-bottom: 1rem;
+  width: 100%;
   background-color: transparent;
   border-collapse: collapse;
-  margin-left: 100px;
-  margin-top: 50px;
-  
-  
 }
 
 
@@ -398,6 +397,7 @@ button:hover {
 }
 
 .table thead th {
+  
   vertical-align: bottom;
   border-bottom: 2px solid #dee2e6;
   background-color: #000000;
@@ -406,8 +406,11 @@ button:hover {
   text-align: center;
 }
 
-.table tbody + tbody {
+.table tbody + tbody{
   border-top: 2px solid #dee2e6;
+  overflow-y: scroll;
+  max-height: 500px;
+  
 }
 
 .table th {
@@ -443,6 +446,7 @@ button:hover {
   color: white;
   border: none;
   cursor: pointer;
+  
 }
 button:hover {
   background-color: #45a049;
@@ -457,7 +461,7 @@ button:hover {
 .search-parent{
   position: relative;
   left:750px;
-  top: 10px;
+  top: -20px;
 
 
 }
