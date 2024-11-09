@@ -113,6 +113,26 @@ def signup(request):
     
     return render(request, 'add_employee.html', context)
 
+
+def set_global_timeout(request):
+    # if request.method == 'POST':
+    #     selected_date = request.POST.get('selected_date')
+    #     custom_timeout = request.POST.get('custom_timeout')
+    #     reason = request.POST.get('reason')
+
+    #     # Parse and set the custom timeout for the specified date
+    #     if selected_date and custom_timeout:
+    #         timeout_time = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
+    #         custom_timeout_obj, created = CustomTimeout.objects.update_or_create(
+    #             date=selected_date,
+    #             defaults={'timeout': timeout_time, 'reason': reason}
+    #         )
+    #         return render(request, 'set_global_timeout.html', {'alert_message': 'Custom timeout set successfully!'})
+
+    return render(request, 'set_global_timeout.html')
+        
+        
+
 def checkin(request):
     if request.method == 'POST':
         employee_input = request.POST.get('employee_input')  # This can be either ID or name

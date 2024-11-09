@@ -1,0 +1,37 @@
+{% extends 'index.html' %} 
+
+ 
+
+{% block title %}Add custom time-out {% endblock %} 
+
+{% block content %} 
+
+ 
+<section class="home"> 
+
+    <h2>Set Custom Timeout for All Employees</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="selected_date">Select Date:</label>
+        <input type="date" name="selected_date" required>
+
+        <label for="custom_timeout">Custom Timeout (HH:MM):</label>
+        <input type="time" name="custom_timeout" required>
+
+        <label for="reason">Reason:</label>
+        <textarea name="reason" placeholder="Enter reason for custom timeout"></textarea>
+
+        <button type="submit">Set Timeout</button>
+    </form>
+    {% if alert_message %}
+        <p>{{ alert_message }}</p>
+    {% endif %}
+
+ 
+
+
+</section> 
+
+ 
+
+{% endblock %} 

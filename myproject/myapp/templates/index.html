@@ -27,6 +27,7 @@
         {% url 'departments' as departments_url %}
         {% url 'employeelist' as employeelist_url %}
         {% url 'logout' as logout_url %}
+        {% url 'custom-timeout' as custom_url %}
       
         <li class="{% if request.path == admin_dashboard_url %}active{% endif %}">
             <a href="{{ admin_dashboard_url }}">
@@ -49,6 +50,16 @@
             </a>
             <span class="tooltip">Employee List</span>
         </li>
+        
+        <li class="{% if request.path == custom_url %}active{% endif %}">
+          <a href="{{ custom_url }}">
+              <i class="bx bx-edit"></i>
+              <span class="title">Schedule timeout</span>
+          </a>
+          <span class="tooltip">Log out</span>
+      </li>
+
+
         <li class="{% if request.path == logout_url %}active{% endif %}">
             <a href="{{ logout_url }}">
                 <i class="bx bx-reply"></i>
@@ -56,6 +67,8 @@
             </a>
             <span class="tooltip">Log out</span>
         </li>
+
+        
       </ul>
       
         {% comment %} <li>
