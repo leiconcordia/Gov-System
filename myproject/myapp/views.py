@@ -175,18 +175,20 @@ def checkin(request):
         default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
         default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
 
-        # Check attendance record for today
-        attendance, created = Attendance.objects.get_or_create(employee=employee, date=current_date)
+        
 
         # Check for custom schedule
         try:
             custom_schedule = CustomSchedule.objects.get(date=current_date)
             time_in = custom_schedule.time_in
             time_out = custom_schedule.time_out
+            print(f"Custom schedule found: Time In: {time_in}, Time Out: {time_out}")
         except CustomSchedule.DoesNotExist:
             # Use default times if no custom schedule is found
             time_in = default_time_in
             time_out = default_time_out
+            print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
+
 
         # Calculate the gap between time_in and time_out, then find the half-gap time
         time_in_dt = timezone.datetime.combine(current_date, time_in)
@@ -194,9 +196,12 @@ def checkin(request):
         gap_time = time_out_dt - time_in_dt
         half_gap_time = time_in_dt + gap_time / 2  # Half-gap time (5 hours after time_in)
         half_gap_time = half_gap_time.time()  # Convert to time object
-
+        
         print(f"Time-in: {time_in}, Time-out: {time_out}")
         print(f"Half Gap Time: {half_gap_time}")
+        
+        # Check attendance record for today
+        attendance, created = Attendance.objects.get_or_create(employee=employee, date=current_date)
 
         # If the employee hasn't marked their time-in and it's past the 5-hour gap (absent status)
         if attendance.time_in is None and current_time >= half_gap_time:
@@ -213,9 +218,9 @@ def checkin(request):
         # If it's before the half-gap time and the employee hasn't marked their time-in yet
         if current_time < half_gap_time and attendance.time_in is None:
             if created:
-                if current_time < time_in:  # Check-in before time_in (ontime)
+                if current_time <= time_in:  # Check-in before time_in (ontime)
                     attendance.arrival_status = 'ontime'
-                elif current_time >= time_in and current_time < time_out:  # Late check-in
+                elif current_time > time_in:  # Late check-in
                     attendance.arrival_status = 'late'
                 attendance.time_in = current_time  # Set time_in on first attendance mark
                 attendance.save()

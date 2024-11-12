@@ -31,7 +31,7 @@ class Employee(models.Model):
 class Attendance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     date = models.DateField()
-    time_in = models.TimeField()
+    time_in = models.TimeField(null=True, blank=True)
     time_out = models.TimeField(null=True, blank=True)
     
     # Status options for arrival and departure

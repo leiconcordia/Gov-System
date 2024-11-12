@@ -44,9 +44,9 @@
             <tr>
                 <th scope="col">Departments</th>
                 <th scope="col">Employees</th>
-                <th scope="col">Late</th>
+                {% comment %} <th scope="col">Late</th>
                 <th scope="col">Absent</th>
-                <th scope="col">On-time</th>
+                <th scope="col">On-time</th> {% endcomment %}
                 <th scope="col">Action</th>
             </tr>
         </thead>
@@ -55,9 +55,9 @@
             <tr>
                 <th scope="row">{{ department.name }}</th>
                 <td>{{ department.employees.count }}</td> 
-                <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
+                {% comment %} <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
                 <td>{% if department.absent_count > 0 %}{{ department.absent_count }}{% else %} {% endif %}</td> 
-                <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td> 
+                <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td>  {% endcomment %}
                 <td>
                     <a href="{% url 'viewdepartment' department.id %}?date={{ default_date|date:'Y-m-d' }}">
 

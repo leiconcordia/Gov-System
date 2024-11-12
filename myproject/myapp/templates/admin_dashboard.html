@@ -23,8 +23,8 @@
                 <td>{{ record.employee.first_name }} {{ record.employee.last_name }}</td>
                 <td>{{ record.time_in|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
                 <td>{{ record.arrival_status }}</td>
-                <td>{{ record.time_out|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
-                <td>{{ record.timeout_status }}</td>
+                <td>{{ record.time_out|time:"g:i a" |default:"-" }}</td>  <!-- Adjust based on your field names -->
+                <td>{{ record.timeout_status|default:"-" }}</td>
             </tr>
             {% empty %}
             <tr>
