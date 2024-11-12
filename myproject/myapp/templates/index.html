@@ -18,6 +18,15 @@
   </head>
   <body>
     <section class="sidebar">
+
+      <nav>
+        {% block nav_content %}
+        <!-- Default content for nav, can be overridden -->
+        {% endblock %}
+      </nav>
+
+
+
       <div class="nav-header">
         <p class="logo"> ATTENDANCE</p>
         <i class="bx bx-menu btn-menu"></i>
@@ -27,7 +36,7 @@
         {% url 'departments' as departments_url %}
         {% url 'employeelist' as employeelist_url %}
         {% url 'logout' as logout_url %}
-        {% url 'custom-timeout' as custom_url %}
+        {% url 'custom_scheduling' as custom_url %}
       
         <li class="{% if request.path == admin_dashboard_url %}active{% endif %}">
             <a href="{{ admin_dashboard_url }}">

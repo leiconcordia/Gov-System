@@ -1,0 +1,51 @@
+{% extends 'index.html' %} 
+
+ 
+
+{% block title %}Add custom time-out {% endblock %} 
+
+{% block content %} 
+
+ 
+<section class="home"> 
+    <p>Set Custom Timeout for All Employees</p>
+    <div class="custom">
+        <form method="POST">
+            {% csrf_token %}
+            <label for="selected_date">Select Date:</label>
+            <input type="date" name="selected_date" id="selected_date" required>
+
+            <label for="custom_timein">Custom time-in (HH:MM):</label>
+            <input type="time" name="custom_timein" required>
+            
+            <label for="custom_timeout">Custom Timeout (HH:MM):</label>
+            <input type="time" name="custom_timeout" required>
+                    
+            <label for="reason">Reason:</label>
+            <input name="reason" placeholder="Enter reason for custom timeout"></input>
+            
+            <button type="submit">Set Timeout</button>
+        </form>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get today's date in the format YYYY-MM-DD
+                const today = new Date().toISOString().split("T")[0];
+                const dateInput = document.getElementById("selected_date");
+            
+                // Set the 'min' attribute to today's date to disable past dates
+                dateInput.setAttribute("min", today);
+            
+                // Optionally, set today's date as the default value if no other date is selected
+                if (!dateInput.value) {
+                    dateInput.value = today;
+                }
+            });
+        </script>
+        
+
+</section>
+
+ 
+
+{% endblock %} 

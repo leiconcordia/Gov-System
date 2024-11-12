@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from .models import Department,Employee, Attendance
+from .models import Department,Employee, Attendance, CustomSchedule
 from django.utils import timezone
 import pytz
 from django.db.models import Count, Q
@@ -114,93 +114,158 @@ def signup(request):
     return render(request, 'add_employee.html', context)
 
 
-def set_global_timeout(request):
-    # if request.method == 'POST':
-    #     selected_date = request.POST.get('selected_date')
-    #     custom_timeout = request.POST.get('custom_timeout')
-    #     reason = request.POST.get('reason')
+def custom_scheduling(request):
+    if request.method == 'POST':
+        selected_date = request.POST.get('selected_date')
+        custom_timein = request.POST.get('custom_timein')
+        custom_timeout = request.POST.get('custom_timeout')  # Ensure custom_timeout is also passed
+        reason = request.POST.get('reason')
 
-    #     # Parse and set the custom timeout for the specified date
-    #     if selected_date and custom_timeout:
-    #         timeout_time = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
-    #         custom_timeout_obj, created = CustomTimeout.objects.update_or_create(
-    #             date=selected_date,
-    #             defaults={'timeout': timeout_time, 'reason': reason}
-    #         )
-    #         return render(request, 'set_global_timeout.html', {'alert_message': 'Custom timeout set successfully!'})
+        # Ensure both time-in and time-out are provided
+        if selected_date and custom_timein and custom_timeout:
+            time_in = timezone.datetime.strptime(custom_timein, '%H:%M').time()
+            time_out = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
 
-    return render(request, 'set_global_timeout.html')
+            # Create or update the schedule for the specified date
+            custom_schedule, created = CustomSchedule.objects.update_or_create(
+                date=selected_date,
+                defaults={'time_in': time_in, 'time_out': time_out, 'reason': reason}
+            )
+
+            alert_message = 'Custom schedule set successfully!'
+            if not created:
+                alert_message = 'Custom schedule updated successfully!'
+
+            return render(request, 'custom_scheduling.html', {'alert_message': alert_message})
+
+    return render(request, 'custom_scheduling.html')
         
         
+        
+        
+        
+        
+        
+        
+
 
 def checkin(request):
     if request.method == 'POST':
-        employee_input = request.POST.get('employee_input')  # This can be either ID or name
+        employee_input = request.POST.get('employee_input')
+        print(f"Employee Input: {employee_input}")
 
-        # Try to find the employee by ID or by name (last_name, first_name)
+        # Find the employee by employee_id or first_name and last_name
         try:
             employee = Employee.objects.get(employee_id=employee_input)
         except Employee.DoesNotExist:
             try:
-                first_name, last_name = employee_input.split()  # Expecting "Last First"
+                first_name, last_name = employee_input.split()
                 employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
             except (Employee.DoesNotExist, ValueError):
                 return HttpResponse("Employee not found.", status=404)
 
+        # Get current date and time in Philippine timezone
         now_utc = timezone.now()
         philippine_tz = pytz.timezone('Asia/Manila')
         now_philippine = now_utc.astimezone(philippine_tz)
-
         current_time = now_philippine.time()
         current_date = now_philippine.date()
+
+        # Default time-in and time-out if no custom schedule
+        default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
+        default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
 
         # Check attendance record for today
         attendance, created = Attendance.objects.get_or_create(employee=employee, date=current_date)
 
-        # If it's before 12 PM
-        if current_time < timezone.datetime.strptime('12:00', '%H:%M').time():
-            # If attendance is newly created (no check-in yet)
+        # Check for custom schedule
+        try:
+            custom_schedule = CustomSchedule.objects.get(date=current_date)
+            time_in = custom_schedule.time_in
+            time_out = custom_schedule.time_out
+        except CustomSchedule.DoesNotExist:
+            # Use default times if no custom schedule is found
+            time_in = default_time_in
+            time_out = default_time_out
+
+        # Calculate the gap between time_in and time_out, then find the half-gap time
+        time_in_dt = timezone.datetime.combine(current_date, time_in)
+        time_out_dt = timezone.datetime.combine(current_date, time_out)
+        gap_time = time_out_dt - time_in_dt
+        half_gap_time = time_in_dt + gap_time / 2  # Half-gap time (5 hours after time_in)
+        half_gap_time = half_gap_time.time()  # Convert to time object
+
+        print(f"Time-in: {time_in}, Time-out: {time_out}")
+        print(f"Half Gap Time: {half_gap_time}")
+
+        # If the employee hasn't marked their time-in and it's past the 5-hour gap (absent status)
+        if attendance.time_in is None and current_time >= half_gap_time:
+            attendance.arrival_status = 'absent'
+            attendance.save()
+            return render(request, 'checkin.html', {'alert_message': 'You are marked as absent for today. Time-in period has passed.'})
+
+        # If the employee has already marked their time-in and it's within the first 5-hour gap
+        if attendance.time_in is not None:
+            if current_time < half_gap_time:
+                return HttpResponse("You have already marked your time-in for today.", status=400)
+            
+
+        # If it's before the half-gap time and the employee hasn't marked their time-in yet
+        if current_time < half_gap_time and attendance.time_in is None:
             if created:
-                if current_time < timezone.datetime.strptime('08:10', '%H:%M').time():
+                if current_time < time_in:  # Check-in before time_in (ontime)
                     attendance.arrival_status = 'ontime'
-                elif current_time < timezone.datetime.strptime('11:00', '%H:%M').time():
+                elif current_time >= time_in and current_time < time_out:  # Late check-in
                     attendance.arrival_status = 'late'
-                else:
-                    attendance.arrival_status = 'absent'  # Mark as absent if they don't check in
-                attendance.time_in = current_time
+                attendance.time_in = current_time  # Set time_in on first attendance mark
                 attendance.save()
                 return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
             else:
                 return HttpResponse("You have already marked your attendance for today.", status=400)
 
-        # If it's 12 PM or later, check if they can mark time out
-        if current_time >= timezone.datetime.strptime('12:00', '%H:%M').time():
-            if attendance.time_out is None:  # Check if they haven't already timed out
+        # After the 5-hour gap, the employee should now only be able to mark time-out
+        if current_time >= half_gap_time:
+            if attendance.time_in is not None and attendance.time_out is None:
                 attendance.time_out = current_time
 
-                # Determine timeout status
-                if current_time < timezone.datetime.strptime('17:00', '%H:%M').time():
-                    attendance.timeout_status = 'left early'
-                elif current_time < timezone.datetime.strptime('19:00', '%H:%M').time():
-                    attendance.timeout_status = 'ontime'
-                else:
-                    attendance.timeout_status = 'overtime'
-
+                # Determine the timeout status (ontime, overtime, left early, etc.)
+                if current_time >= time_out:
+                    attendance.timeout_status = 'ontime'  # Employee leaves at or after the expected time
+                elif current_time < time_out:
+                    attendance.timeout_status = 'overtime'  # Employee stays beyond expected time
+                elif current_time < half_gap_time:  # Employee left before the expected time (early)
+                    attendance.timeout_status = 'left early'  # Employee leaves before the expected time
                 attendance.save()
-                return render(request, 'checkin.html', {'alert_message': 'Time out marked successfully!'})
+                return render(request, 'checkin.html', {'alert_message': 'Time-out marked successfully!'})
             else:
-                return HttpResponse("You have already marked your time out for today.", status=400)
+                return HttpResponse("You have already marked your time-out for today.", status=400)
 
-    # Handle GET request
     return render(request, 'checkin.html')
+
+
+
+
+
+
+
+
 
 @login_required
 def admin_dashboard_view(request):
     # Get today's date
-    today = timezone.now().date()
+    today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
+    attendance_records = Attendance.objects.filter(date=today)
     
     # Fetch attendance records for today
     attendance_records = Attendance.objects.filter(date=today)
+    
+    print(f"Attendance records for today: {attendance_records}")
+    
+    # Check if the attendance records contain any data
+    if not attendance_records.exists():
+        print("No attendance records found for today.")
+    else:
+        print(f"Found {attendance_records.count()} attendance records for today.")
 
     context = {
         'attendance_records': attendance_records
@@ -248,7 +313,10 @@ def employeelist(request):
         employee = Employee.objects.filter(
             Q(employee_id__icontains=search_query) |
             Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query)
+            Q(last_name__icontains=search_query) |
+            Q(employee__Department_name__icontains=search_query)
+            
+            
         )
     else:
         employee = Employee.objects.all()

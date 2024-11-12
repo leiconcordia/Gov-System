@@ -16,17 +16,15 @@
             <img src="../static/images/ormoclogo.png" style="position:absolute; width:60px; height:60px; margin-left:1450px; margin-top:10px;">
             {% csrf_token %}
             <label for="employee_input">Enter Employee ID or Name (First Last): </label>
-            
             <input  type="text" id="employee-name" placeholder="Enter Employee ID/Name" name="employee_input" required>
             <button type="submit" id="checkin-btn">Log in</button>
-            
         </form>
         
        
     </div>
 
     <script src="{% static 'js/script.js' %}"></script>
-    <script>
+    {% comment %} <script>
         function updateButtonText() {
             // Get the current date and time in the Philippines (UTC+8)
             const now = new Date();
@@ -45,7 +43,7 @@
         }
     
         // Run the function when the page loads
-        window.onload = updateButtonText;
+        window.onload = updateButtonText; {% endcomment %}
     </script>
     
 </body>

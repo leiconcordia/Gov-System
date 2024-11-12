@@ -360,7 +360,6 @@ input, select {
 
 
 button {
-  margin-top: 15px;
   padding: 10px;
   background-color: rgb(32, 59, 232);
   color: white;
@@ -476,10 +475,33 @@ button:hover {
   position: relative;
   left:850px;
   top: 50px;
+
 }
 
+.custom {
+  background-color: rgb(216, 216, 216);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 20px 5px 20px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  max-height: 900px;
+  margin: 0 auto;
+  margin-top: 25px;
+  text-align: left;
+}
 
-
-
-
+.custom button {
+  background-color: rgb(32, 59, 232);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display:flex;
+  margin-top: 10px;
+  margin-left: 20rem;
   
+}
+
+.custom button:hover {
+  background-color: #45a049;
+}
+

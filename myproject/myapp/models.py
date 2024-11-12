@@ -51,3 +51,14 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.employee} - {self.date} - Arrival: {self.arrival_status}, Departure: {self.timeout_status}"
+
+
+class CustomSchedule(models.Model):
+    date = models.DateField(unique=True)       
+    time_in = models.TimeField()                 
+    time_out = models.TimeField()                
+    reason = models.TextField(blank=True)        
+
+    def __str__(self):
+        return f"Schedule for {self.date}: In at {self.time_in}, Out at {self.time_out} ({self.reason})"
+    

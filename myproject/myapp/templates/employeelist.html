@@ -10,7 +10,7 @@
     <!-- Search Bar -->
     <!-- Search Bar -->
 <form method="GET" action="{% url 'employeelist' %}" class="search-parent">
-  <input type="text" name="search" placeholder="Search by ID or Name" class="search" value="{{ request.GET.search }}" />
+  <input type="text" name="search" placeholder="Search..." class="search" value="{{ request.GET.search }}" />
   <button type="submit">Search</button>
   <a href="{% url 'employeelist' %}" class="btn">Back</a> <!-- Back button -->
 </form>

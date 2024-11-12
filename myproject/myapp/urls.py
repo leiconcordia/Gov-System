@@ -15,7 +15,8 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),  
     path('departments/', views.departments, name='departments'),
     
-    path('set-global-timeout/', views.set_global_timeout , name='custom-timeout'),
+
+    path('set-custom_scheduling/', views.custom_scheduling, name='custom_scheduling'),
     
   
     
