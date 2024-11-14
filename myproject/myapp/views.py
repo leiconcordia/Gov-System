@@ -12,6 +12,108 @@ from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseNotFound
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
+from datetime import date
+from datetime import timedelta
+
+
+def get_schedule(current_date):
+    # Default time-in and time-out
+    default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
+    default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
+
+    try:
+        # Fetch custom schedule if available
+        custom_schedule = CustomSchedule.objects.get(date=current_date)
+        time_in = custom_schedule.time_in
+        time_out = custom_schedule.time_out
+        print(f"Custom schedule found: Time In: {time_in}, Time Out: {time_out}")
+    except CustomSchedule.DoesNotExist:
+        # Use default schedule if custom not found
+        time_in = default_time_in
+        time_out = default_time_out
+        print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
+    
+    return time_in, time_out
+
+def checkin(request):
+    # Current time in Philippine timezone
+    now_utc = timezone.now()
+    philippine_tz = pytz.timezone('Asia/Manila')
+    now_philippine = now_utc.astimezone(philippine_tz)
+    current_date = now_philippine.date()
+    current_time = now_philippine.time()
+
+    # Get the schedule
+    time_in, time_out = get_schedule(current_date)
+    current_time_dt = timezone.datetime.combine(current_date, current_time)
+    time_in_dt = timezone.datetime.combine(current_date, time_in)
+    time_out_dt = timezone.datetime.combine(current_date, time_out)
+
+    # Calculate half-gap time
+    gap_time = time_out_dt - time_in_dt
+    half_gap_time = time_in_dt + gap_time / 2  # Halfway point in datetime
+    print(f"Time-in: {time_in}, Time-out: {time_out}, Half Gap Time: {half_gap_time.time()}")
+
+    if request.method == 'POST':
+        employee_input = request.POST.get('employee_input')
+        print(f"Employee Input: {employee_input}")
+
+        try:
+            # Try to find employee by ID or by name
+            employee = Employee.objects.get(employee_id=employee_input)
+        except Employee.DoesNotExist:
+            try:
+                first_name, last_name = employee_input.split()
+                employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
+            except (Employee.DoesNotExist, ValueError):
+                return HttpResponse("Employee not found.", status=404)
+
+        # Get or create attendance record
+        attendance, _ = Attendance.objects.get_or_create(employee=employee, date=current_date)
+
+        # Check-in logic
+        if attendance.time_in is None:  # First-time check-in
+            if current_time_dt <= time_in_dt:
+                attendance.arrival_status = 'ontime'
+            elif current_time_dt < half_gap_time:
+                attendance.arrival_status = 'late'
+            else:
+                # If time-in period has passed and no check-in is recorded
+                attendance.arrival_status = 'absent'
+                attendance.save()
+                return HttpResponse("Time-in period has passed. You are marked absent.", status=400)
+
+
+            # Save time-in and prevent re-checkin
+            attendance.time_in = current_time
+            attendance.save()
+            return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
+
+        # Prevent re-checkin if already checked in and before half_gap_time
+        if attendance.time_in is not None and current_time_dt < half_gap_time:
+            return HttpResponse("You have already checked in for today.", status=400)
+
+        # Time-out logic
+        if attendance.time_out is None and current_time_dt >= half_gap_time:
+            overtime_window = time_out_dt + timedelta(hours=3)
+
+            if time_out_dt <= current_time_dt < overtime_window:
+                attendance.timeout_status = 'on time'
+            elif current_time_dt >= overtime_window:
+                attendance.timeout_status = 'overtime'
+            elif half_gap_time <= current_time_dt < time_out_dt:
+                attendance.timeout_status = 'left early'
+            else:
+                attendance.timeout_status = 'on time'
+
+            # Save time-out
+            attendance.time_out = current_time_dt
+            attendance.save()
+            return render(request, 'checkin.html', {'alert_message': 'Time-out marked successfully!'})
+
+    # Render the checkin page if no form has been submitted
+    return render(request, 'checkin.html')
+
 
 
 
@@ -149,103 +251,103 @@ def custom_scheduling(request):
         
 
 
-def checkin(request):
-    if request.method == 'POST':
-        employee_input = request.POST.get('employee_input')
-        print(f"Employee Input: {employee_input}")
+# def checkin(request):
+#     # Ensure current_date and current_time are set up at the start of the function
+#     now_utc = timezone.now()
+#     philippine_tz = pytz.timezone('Asia/Manila')
+#     now_philippine = now_utc.astimezone(philippine_tz)
+#     current_date = now_philippine.date()  # Only the date, without time
+#     current_time = now_philippine.time()  # Current time in Philippine time zone
 
-        # Find the employee by employee_id or first_name and last_name
-        try:
-            employee = Employee.objects.get(employee_id=employee_input)
-        except Employee.DoesNotExist:
-            try:
-                first_name, last_name = employee_input.split()
-                employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
-            except (Employee.DoesNotExist, ValueError):
-                return HttpResponse("Employee not found.", status=404)
+#     # Default time-in and time-out if no custom schedule
+#     default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
+#     default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
 
-        # Get current date and time in Philippine timezone
-        now_utc = timezone.now()
-        philippine_tz = pytz.timezone('Asia/Manila')
-        now_philippine = now_utc.astimezone(philippine_tz)
-        current_time = now_philippine.time()
-        current_date = now_philippine.date()
-
-        # Default time-in and time-out if no custom schedule
-        default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
-        default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
-
-        
-
-        # Check for custom schedule
-        try:
-            custom_schedule = CustomSchedule.objects.get(date=current_date)
-            time_in = custom_schedule.time_in
-            time_out = custom_schedule.time_out
-            print(f"Custom schedule found: Time In: {time_in}, Time Out: {time_out}")
-        except CustomSchedule.DoesNotExist:
-            # Use default times if no custom schedule is found
-            time_in = default_time_in
-            time_out = default_time_out
-            print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
+#     # Check if a custom schedule exists for today
+#     try:
+#         custom_schedule = CustomSchedule.objects.get(date=current_date)  # Directly compare with date
+#         time_in = custom_schedule.time_in
+#         time_out = custom_schedule.time_out
+#         print(f"Custom schedule found: Time In: {time_in}, Time Out: {time_out}")
+#     except CustomSchedule.DoesNotExist:
+#         # Use default times if no custom schedule is found
+#         time_in = default_time_in
+#         time_out = default_time_out
+#         print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
 
 
-        # Calculate the gap between time_in and time_out, then find the half-gap time
-        time_in_dt = timezone.datetime.combine(current_date, time_in)
-        time_out_dt = timezone.datetime.combine(current_date, time_out)
-        gap_time = time_out_dt - time_in_dt
-        half_gap_time = time_in_dt + gap_time / 2  # Half-gap time (5 hours after time_in)
-        half_gap_time = half_gap_time.time()  # Convert to time object
-        
-        print(f"Time-in: {time_in}, Time-out: {time_out}")
-        print(f"Half Gap Time: {half_gap_time}")
-        
-        # Check attendance record for today
-        attendance, created = Attendance.objects.get_or_create(employee=employee, date=current_date)
+#     # Get employee input and try to find the employee
+#     if request.method == 'POST':
+#         employee_input = request.POST.get('employee_input')
+#         print(f"Employee Input: {employee_input}")
 
-        # If the employee hasn't marked their time-in and it's past the 5-hour gap (absent status)
-        if attendance.time_in is None and current_time >= half_gap_time:
-            attendance.arrival_status = 'absent'
-            attendance.save()
-            return render(request, 'checkin.html', {'alert_message': 'You are marked as absent for today. Time-in period has passed.'})
+#         try:
+#             # First try to find the employee by employee_id
+#             employee = Employee.objects.get(employee_id=employee_input)
+#         except Employee.DoesNotExist:
+#             # If not found, try by first_name and last_name
+#             try:
+#                 first_name, last_name = employee_input.split()
+#                 employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
+#             except (Employee.DoesNotExist, ValueError):
+#                 return HttpResponse("Employee not found.", status=404)
 
-        # If the employee has already marked their time-in and it's within the first 5-hour gap
-        if attendance.time_in is not None:
-            if current_time < half_gap_time:
-                return HttpResponse("You have already marked your time-in for today.", status=400)
-            
+#         # Now that employee is found, check attendance
+#         attendance, created = Attendance.objects.get_or_create(employee=employee, date=current_date)
 
-        # If it's before the half-gap time and the employee hasn't marked their time-in yet
-        if current_time < half_gap_time and attendance.time_in is None:
-            if created:
-                if current_time <= time_in:  # Check-in before time_in (ontime)
-                    attendance.arrival_status = 'ontime'
-                elif current_time > time_in:  # Late check-in
-                    attendance.arrival_status = 'late'
-                attendance.time_in = current_time  # Set time_in on first attendance mark
-                attendance.save()
-                return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
-            else:
-                return HttpResponse("You have already marked your attendance for today.", status=400)
+#         # Calculate the gap time and half-gap time
+#         time_in_dt = timezone.datetime.combine(current_date, time_in)
+#         time_out_dt = timezone.datetime.combine(current_date, time_out)
+#         gap_time = time_out_dt - time_in_dt
+#         half_gap_time = time_in_dt + gap_time / 2  # Half-gap time (5 hours after time_in)
+#         half_gap_time = half_gap_time.time()  # Convert to time object
 
-        # After the 5-hour gap, the employee should now only be able to mark time-out
-        if current_time >= half_gap_time:
-            if attendance.time_in is not None and attendance.time_out is None:
-                attendance.time_out = current_time
+#         print(f"Time-in: {time_in}, Time-out: {time_out}")
+#         print(f"Half Gap Time: {half_gap_time}")
 
-                # Determine the timeout status (ontime, overtime, left early, etc.)
-                if current_time >= time_out:
-                    attendance.timeout_status = 'ontime'  # Employee leaves at or after the expected time
-                elif current_time < time_out:
-                    attendance.timeout_status = 'overtime'  # Employee stays beyond expected time
-                elif current_time < half_gap_time:  # Employee left before the expected time (early)
-                    attendance.timeout_status = 'left early'  # Employee leaves before the expected time
-                attendance.save()
-                return render(request, 'checkin.html', {'alert_message': 'Time-out marked successfully!'})
-            else:
-                return HttpResponse("You have already marked your time-out for today.", status=400)
+#         # If it's after the 5-hour gap and the employee hasn't checked in, mark as absent
+#         if attendance.time_in is None and current_time >= half_gap_time:
+#             attendance.arrival_status = 'absent'
+#             attendance.save()
+#             return render(request, 'checkin.html', {'alert_message': 'You are marked as absent for today. Time-in period has passed.'})
 
-    return render(request, 'checkin.html')
+#         # If time-in has already been marked, prevent re-checkin
+#         if attendance.time_in is not None:
+#             if current_time < half_gap_time:
+#                 return HttpResponse("You have already marked your time-in for today.", status=400)
+
+#         # Handle the case where it's before the half-gap time and the employee hasn't checked in
+#         if current_time < half_gap_time and attendance.time_in is None:
+#             if created:
+#                 if current_time <= time_in:  # Check-in before time_in (ontime)
+#                     attendance.arrival_status = 'ontime'
+#                 elif current_time > time_in:  # Late check-in
+#                     attendance.arrival_status = 'late'
+#                 attendance.time_in = current_time  # Set time_in on first attendance mark
+#                 attendance.save()
+#                 return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
+#             else:
+#                 return HttpResponse("You have already marked your attendance for today.", status=400)
+
+#         # Handle time-out marking (after 5-hour gap)
+#         if current_time >= half_gap_time:
+#             if attendance.time_in is not None and attendance.time_out is None:
+#                 attendance.time_out = current_time
+
+#                 # Determine timeout status (ontime, overtime, left early)
+#                 if current_time >= time_out:
+#                     attendance.timeout_status = 'ontime'  # Employee leaves at or after the expected time
+#                 elif current_time > time_out:
+#                     attendance.timeout_status = 'overtime'  # Employee stays beyond expected time
+#                 elif current_time < time_out and current_time >= half_gap_time:
+#                     attendance.timeout_status = 'left early'  # Employee leaves before the expected time
+
+#                 attendance.save()
+#                 return render(request, 'checkin.html', {'alert_message': 'Time-out marked successfully!'})
+#             else:
+#                 return HttpResponse("You have already marked your time-out for today.", status=400)
+#     # Render the checkin page if no form has been submitted
+#     return render(request, 'checkin.html')
 
 
 

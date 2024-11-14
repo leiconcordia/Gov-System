@@ -8,7 +8,7 @@
 
  
 <section class="home"> 
-    <p>Set Custom Timeout for All Employees</p>
+    <p>Set Custom Attendance Times for Employees</p>
     <div class="custom">
         <form method="POST">
             {% csrf_token %}
@@ -21,8 +21,8 @@
             <label for="custom_timeout">Custom Timeout (HH:MM):</label>
             <input type="time" name="custom_timeout" required>
                     
-            <label for="reason">Reason:</label>
-            <input name="reason" placeholder="Enter reason for custom timeout"></input>
+            <label for="reason">Event name:</label>
+            <input name="reason" placeholder="Enter event for custom attendance"></input>
             
             <button type="submit">Set Timeout</button>
         </form>
