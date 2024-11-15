@@ -26,6 +26,17 @@
             
             <button type="submit">Set Timeout</button>
         </form>
+
+        {% if alert_message and alert_icon %}
+    <script>
+        Swal.fire({
+            title: '{{ alert_icon|capfirst }}',
+            text: '{{ alert_message }}',
+            icon: '{{ alert_icon }}', // 'success', 'error', 'warning', etc.
+            confirmButtonText: 'OK'
+        });
+    </script>
+    {% endif %}
         
         <script>
             document.addEventListener('DOMContentLoaded', function() {

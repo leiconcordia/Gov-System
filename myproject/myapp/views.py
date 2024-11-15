@@ -180,15 +180,16 @@ def employee_dashboard(request):
 
 
 @login_required
-def signup(request):
+def employeelist(request):
+    # Handle the signup process
     if request.method == 'POST':
         # Extract data from the form
         employee_id = request.POST['employeeId']
         first_name = request.POST['firstName']
         last_name = request.POST['lastName']
         username = request.POST['username']
-        password = request.POST['password']  # Get the raw password
-        department_id = request.POST['department_name']  # Assuming department is passed as ID
+        password = request.POST['password']
+        department_id = request.POST['department_name']
 
         # Create a new Employee instance with hashed password
         employee = Employee(
@@ -196,49 +197,112 @@ def signup(request):
             first_name=first_name,
             last_name=last_name,
             username=username,
-            password=make_password(password),  # Hash the password before saving
-            department_name_id=department_id  # Use the department ID here
+            password=make_password(password),
+            department_name_id=department_id
         )
         
         # Save the employee to the database
         employee.save()
 
-        # Redirect to the employee list page or a success page
-        return redirect('employeelist')  # Adjust this to your actual success page
+        # Optionally, you could return a success message or redirect
+        # return redirect('employeelist')
 
-    # If GET request, fetch all departments to display in the form
+    # Handle search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        employees = Employee.objects.filter(
+            Q(employee_id__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(department_name__name__icontains=search_query)
+        )
+    else:
+        employees = Employee.objects.all()
+
+    departments = Department.objects.all()  # Fetch departments here
+    
+    context = {
+        "employees": employees,
+        "departments": departments
+    }
+    return render(request, 'employeelist.html', context)
+
+
+@login_required
+def edit_employee(request, employee_id):
+    # Fetch the employee using the provided ID
+    employee = Employee.objects.get(pk=employee_id)
+
+    # Fetch all departments for the select field
     departments = Department.objects.all()
 
+    if request.method == 'POST':
+        # Update the employee's details with the form data
+        employee.first_name = request.POST['firstName']
+        employee.last_name = request.POST['lastName']
+        employee.username = request.POST['username']
+        employee.department_name_id = request.POST['department_name']
+
+        # If a new password is provided, update the password
+        if request.POST.get('password'):
+            employee.password = make_password(request.POST['password'])
+
+        # Save the updated employee details
+        employee.save()
+
+        # Redirect back to the employee list or wherever you want
+        return redirect('employeelist')
+
     context = {
-        "departments": departments  # Use a plural name for clarity
+        'employee': employee,
+        'departments': departments
     }
-    
-    return render(request, 'add_employee.html', context)
+    return render(request, 'edit_employee.html', context)
+
+@login_required
+def delete_employee(request, employee_id):
+    # Ensure the employee exists
+    employee = Employee.objects.get(pk=employee_id)
+
+    # Delete the employee
+    employee.delete()
+
+    # Redirect back to the employee list page
+    return redirect('employeelist')
 
 
+@login_required
 def custom_scheduling(request):
     if request.method == 'POST':
         selected_date = request.POST.get('selected_date')
         custom_timein = request.POST.get('custom_timein')
-        custom_timeout = request.POST.get('custom_timeout')  # Ensure custom_timeout is also passed
+        custom_timeout = request.POST.get('custom_timeout')
         reason = request.POST.get('reason')
 
-        # Ensure both time-in and time-out are provided
         if selected_date and custom_timein and custom_timeout:
-            time_in = timezone.datetime.strptime(custom_timein, '%H:%M').time()
-            time_out = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
+            try:
+                time_in = timezone.datetime.strptime(custom_timein, '%H:%M').time()
+                time_out = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
 
-            # Create or update the schedule for the specified date
-            custom_schedule, created = CustomSchedule.objects.update_or_create(
-                date=selected_date,
-                defaults={'time_in': time_in, 'time_out': time_out, 'reason': reason}
-            )
+                # Create or update the schedule for the specified date
+                custom_schedule, created = CustomSchedule.objects.update_or_create(
+                    date=selected_date,
+                    defaults={'time_in': time_in, 'time_out': time_out, 'reason': reason}
+                )
 
-            alert_message = 'Custom schedule set successfully!'
-            if not created:
-                alert_message = 'Custom schedule updated successfully!'
+                alert_message = 'Custom schedule set successfully!' if created else 'Custom schedule updated successfully!'
+                alert_icon = 'success'
+            except Exception as e:
+                alert_message = f'Error: {str(e)}'
+                alert_icon = 'error'
+        else:
+            alert_message = 'Please provide all required fields!'
+            alert_icon = 'warning'
 
-            return render(request, 'custom_scheduling.html', {'alert_message': alert_message})
+        return render(request, 'custom_scheduling.html', {
+            'alert_message': alert_message,
+            'alert_icon': alert_icon
+        })
 
     return render(request, 'custom_scheduling.html')
         
@@ -248,113 +312,6 @@ def custom_scheduling(request):
         
         
         
-        
-
-
-# def checkin(request):
-#     # Ensure current_date and current_time are set up at the start of the function
-#     now_utc = timezone.now()
-#     philippine_tz = pytz.timezone('Asia/Manila')
-#     now_philippine = now_utc.astimezone(philippine_tz)
-#     current_date = now_philippine.date()  # Only the date, without time
-#     current_time = now_philippine.time()  # Current time in Philippine time zone
-
-#     # Default time-in and time-out if no custom schedule
-#     default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
-#     default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
-
-#     # Check if a custom schedule exists for today
-#     try:
-#         custom_schedule = CustomSchedule.objects.get(date=current_date)  # Directly compare with date
-#         time_in = custom_schedule.time_in
-#         time_out = custom_schedule.time_out
-#         print(f"Custom schedule found: Time In: {time_in}, Time Out: {time_out}")
-#     except CustomSchedule.DoesNotExist:
-#         # Use default times if no custom schedule is found
-#         time_in = default_time_in
-#         time_out = default_time_out
-#         print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
-
-
-#     # Get employee input and try to find the employee
-#     if request.method == 'POST':
-#         employee_input = request.POST.get('employee_input')
-#         print(f"Employee Input: {employee_input}")
-
-#         try:
-#             # First try to find the employee by employee_id
-#             employee = Employee.objects.get(employee_id=employee_input)
-#         except Employee.DoesNotExist:
-#             # If not found, try by first_name and last_name
-#             try:
-#                 first_name, last_name = employee_input.split()
-#                 employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
-#             except (Employee.DoesNotExist, ValueError):
-#                 return HttpResponse("Employee not found.", status=404)
-
-#         # Now that employee is found, check attendance
-#         attendance, created = Attendance.objects.get_or_create(employee=employee, date=current_date)
-
-#         # Calculate the gap time and half-gap time
-#         time_in_dt = timezone.datetime.combine(current_date, time_in)
-#         time_out_dt = timezone.datetime.combine(current_date, time_out)
-#         gap_time = time_out_dt - time_in_dt
-#         half_gap_time = time_in_dt + gap_time / 2  # Half-gap time (5 hours after time_in)
-#         half_gap_time = half_gap_time.time()  # Convert to time object
-
-#         print(f"Time-in: {time_in}, Time-out: {time_out}")
-#         print(f"Half Gap Time: {half_gap_time}")
-
-#         # If it's after the 5-hour gap and the employee hasn't checked in, mark as absent
-#         if attendance.time_in is None and current_time >= half_gap_time:
-#             attendance.arrival_status = 'absent'
-#             attendance.save()
-#             return render(request, 'checkin.html', {'alert_message': 'You are marked as absent for today. Time-in period has passed.'})
-
-#         # If time-in has already been marked, prevent re-checkin
-#         if attendance.time_in is not None:
-#             if current_time < half_gap_time:
-#                 return HttpResponse("You have already marked your time-in for today.", status=400)
-
-#         # Handle the case where it's before the half-gap time and the employee hasn't checked in
-#         if current_time < half_gap_time and attendance.time_in is None:
-#             if created:
-#                 if current_time <= time_in:  # Check-in before time_in (ontime)
-#                     attendance.arrival_status = 'ontime'
-#                 elif current_time > time_in:  # Late check-in
-#                     attendance.arrival_status = 'late'
-#                 attendance.time_in = current_time  # Set time_in on first attendance mark
-#                 attendance.save()
-#                 return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
-#             else:
-#                 return HttpResponse("You have already marked your attendance for today.", status=400)
-
-#         # Handle time-out marking (after 5-hour gap)
-#         if current_time >= half_gap_time:
-#             if attendance.time_in is not None and attendance.time_out is None:
-#                 attendance.time_out = current_time
-
-#                 # Determine timeout status (ontime, overtime, left early)
-#                 if current_time >= time_out:
-#                     attendance.timeout_status = 'ontime'  # Employee leaves at or after the expected time
-#                 elif current_time > time_out:
-#                     attendance.timeout_status = 'overtime'  # Employee stays beyond expected time
-#                 elif current_time < time_out and current_time >= half_gap_time:
-#                     attendance.timeout_status = 'left early'  # Employee leaves before the expected time
-
-#                 attendance.save()
-#                 return render(request, 'checkin.html', {'alert_message': 'Time-out marked successfully!'})
-#             else:
-#                 return HttpResponse("You have already marked your time-out for today.", status=400)
-#     # Render the checkin page if no form has been submitted
-#     return render(request, 'checkin.html')
-
-
-
-
-
-
-
 
 
 @login_required
@@ -414,24 +371,7 @@ def login_view(request):
 
 
 
-def employeelist(request):
-    search_query = request.GET.get('search', '')
-    if search_query:
-        employee = Employee.objects.filter(
-            Q(employee_id__icontains=search_query) |
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(employee__Department_name__icontains=search_query)
-            
-            
-        )
-    else:
-        employee = Employee.objects.all()
 
-    context = {
-        "employee": employee
-    }
-    return render(request, 'employeelist.html', context)
 
 
 @login_required

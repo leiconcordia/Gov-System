@@ -1,0 +1,40 @@
+{% extends 'index.html' %}
+
+{% block title %}Edit Employee{% endblock %}
+
+{% block content %}
+<section class="home">
+    <p>Edit Employee</p>
+    <div class="modal-body">
+    <form method="POST" action="{% url 'edit_employee' employee.id %}">
+        {% csrf_token %}
+        
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" class="form-control" value="{{ employee.first_name }}" required>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" class="form-control" value="{{ employee.last_name }}" required>
+
+        <label for="employeeId">Employee ID:</label>
+        <input type="number" id="employeeId" name="employeeId" class="form-control" value="{{ employee.employee_id }}" required readonly>
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" class="form-control" value="{{ employee.username }}" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Leave blank if you don't want to change it">
+
+        <label for="department_name">Department:</label>
+        <select id="department_name" name="department_name" class="form-control" required>
+            {% for department in departments %}
+                <option value="{{ department.id }}" {% if department.id == employee.department_name.id %} selected {% endif %}>{{ department.name }}</option>
+            {% empty %}
+                <option value="">No departments available</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn btn-success mt-3">Update Employee</button>
+    </form>
+</div>
+</section>
+{% endblock %}

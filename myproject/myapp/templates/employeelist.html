@@ -10,10 +10,12 @@
     <!-- Search Bar -->
     <!-- Search Bar -->
 <form method="GET" action="{% url 'employeelist' %}" class="search-parent">
-  <input type="text" name="search" placeholder="Search..." class="search" value="{{ request.GET.search }}" />
+  <input type="search" name="search" placeholder="Search..." class="search" value="{{ request.GET.search }}" />
   <button type="submit">Search</button>
-  <a href="{% url 'employeelist' %}" class="btn">Back</a> <!-- Back button -->
+  
 </form>
+
+
 
 <div class="table-container">
     <table class="table">
@@ -27,38 +29,39 @@
         </thead>
         
         <tbody>
-            {% for employee in employee %}
+            {% for employee in employees %}
             <tr>
                 <th scope="row">{{ employee.employee_id }}</th>
                 <td>{{ employee.first_name }} {{ employee.last_name }}</td>
                 <td>{{ employee.department_name }}</td>
-                <td> 
-                    <a href="{% url 'view_employee' employee.employee_id %}">
-                        <!-- View Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-lines-fill" viewBox="0 0 16 16">
-                            <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
-                        </svg>
-                       
-                    </a> 
+                <td>
+                    <div class="btn-group" style="display: flex; flex-direction: row; align-items: center; gap: 5px;  ">
+                        <!-- View Record Button -->
+                        <a class="btn btn-info" href="{% url 'view_employee' employee.employee_id %}">Records</a>
                 
-                     {% comment %} <a href="{% url 'edit_employee' employee.employee_id %}"> {% endcomment %}
-                        <!-- Edit Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                        </svg>
-                        
-                    </a>
+                        <!-- Edit Button -->
+                        <a class="btn btn-primary" href="{% url 'edit_employee' employee.id %}">
+                            <!-- Edit Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                            </svg>
+                        </a>
                 
-                    {% comment %} <a href="{% url 'delete_employee' employee.employee_id %}"> {% endcomment %}
-                        <!-- Delete Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-x" viewBox="0 0 16 16">
-                            <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
-                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m-.646-4.854.646.647.646-.647a.5.5 0 0 1 .708.708l-.647.646.647.646a.5.5 0 0 1-.708.708l-.646-.647-.646.647a.5.5 0 0 1-.708-.708l.647-.646-.647-.646a.5.5 0 0 1 .708-.708"/>
-                        </svg>
-                        
-                    </a>  
+                        <!-- Delete Button -->
+                        <form action="{% url 'delete_employee' employee.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <!-- Delete Icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-x" viewBox="0 0 16 16">
+                                    <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
+                                    <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m-.646-4.854.646.647.646-.647a.5.5 0 0 1 .708.708l-.647.646.647.646a.5.5 0 0 1-.708.708l-.646-.647-.646.647a.5.5 0 0 1-.708-.708l.647-.646-.647-.646a.5.5 0 0 1 .708-.708"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </td>
+                
                 
             </tr>
             {% empty %}
@@ -69,26 +72,109 @@
         </tbody>
     </table>
 </div>
+<div class='add-emp'
 
-    <button class="bx bx-user-plus" 
-        onclick="window.location.href='{% url 'signup' %}'" 
-        style="
-            width: 70px; 
-            height: 70px; 
-            border-radius: 50%; 
-            font-size: 24px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-            position: absolute; 
-            left: 900px;
+style="
+    
+    display: flex; 
+    align-items: center; 
+    justify-content: end; 
+    margin-right: 60px;
+    ">
+<button type="button" 
+class="bx bx-user-plus"
+data-bs-toggle="modal" 
+data-bs-target="#signupModal"
+style="
+    width: 70px; 
+    height: 70px; 
+    border-radius: 50%; 
+    font-size: 24px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+   
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    ">
+    
 
-          
-        ">
 </button>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true" data-bs-backdrop="false">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="signupModalLabel">Add Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'employeelist' %}" method="POST">
+                    {% csrf_token %}
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" required>
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" required>
+                    <label for="employeeId">Employee ID:</label>
+                    <input type="number" id="employeeId" name="employeeId" class="form-control" required>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <label for="department">Department:</label> 
+                    <select id="department" name="department_name" required> 
+                        {% for departments in departments %} 
+                            <option value="{{ departments.id }}">{{ departments.name }}</option> 
+                        {% empty %} 
+                            <option value="">No departments available</option> 
+                        {% endfor %} 
+                    </select> 
+                    <button type="submit" class="btn btn-success mt-3">Add Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+<script>
+    // Open modal for Add Employee
+    function openAddEmployeeModal() {
+        // Reset the form and clear any previous data
+        document.getElementById('employeeForm').reset();
+        document.getElementById('employee_id').value = ''; // Clear the hidden employee_id field
+        document.getElementById('employeeModalLabel').textContent = 'Add Employee';
+        // Show the modal
+        $('#employeeModal').modal('show');
+    }
+
+    // Open modal for Edit Employee and populate the form
+    function openEditEmployeeModal(employeeId, firstName, lastName, username, departmentId) {
+        // Set the action for the form (edit)
+        document.getElementById('employee_id').value = employeeId; // Set hidden employeeId
+        document.getElementById('firstName').value = firstName;
+        document.getElementById('lastName').value = lastName;
+        document.getElementById('username').value = username;
+        document.getElementById('department').value = departmentId;
+
+        // Change modal title
+        document.getElementById('employeeModalLabel').textContent = 'Edit Employee';
+
+        // Show the modal
+        $('#employeeModal').modal('show');
+    }
+
+    // Example usage for opening the modal from a button or link:
+    // <button onclick="openAddEmployeeModal()">Add Employee</button>
+    // <button onclick="openEditEmployeeModal(1, 'John', 'Doe', 'johndoe', 2)">Edit Employee</button>
+</script>
+
 
 </section>
 

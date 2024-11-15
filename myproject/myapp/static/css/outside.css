@@ -36,7 +36,7 @@ body {
   }
   #checkin-form button {
     padding: 10px;
-    background-color: #1a99f4;
+    background-color: rgb(32, 59, 232) ;
     color: white;
     border: none;
     border-radius: 5px;
@@ -44,9 +44,9 @@ body {
     cursor: pointer;
     border-radius: 5px;
   }
+
   #checkin-form button:hover {
-    background-color: #1a99f4;
-    background: #000000ea;
+    background-color:#45a049;
   }
   #login-form {
     position: relative; /* To keep the back button positioned relative to the form */
@@ -94,7 +94,7 @@ body {
   padding-right: 50px;
   padding-top: 10px;
   padding-bottom: 10px;
-  background-color: #1a99f4;
+  background-color: rgb(32, 59, 232);
   color: white;
   border: none;
   border-radius: 5px;

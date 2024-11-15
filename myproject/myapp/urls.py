@@ -7,7 +7,7 @@ from .views import employee_dashboard
 urlpatterns = [
     path('', views.checkin, name='checkin_page'),
     
-    path('signup/', views.signup, name='signup'), 
+    
     path('signin/', views.signin, name='signin'),
     path('employee-dashboard/', views.employee_dashboard, name='employee-dashboard'),
     
@@ -27,6 +27,9 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     
     path('employee/<str:employee_id>/', views.view_employee, name='view_employee'),
+    
+    path('employee/edit/<int:employee_id>/', views.edit_employee, name='edit_employee'),
+    path('employee/delete/<int:employee_id>/', views.delete_employee, name='delete_employee'),
     
      
      

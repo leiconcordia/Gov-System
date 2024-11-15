@@ -91,6 +91,7 @@
 .nav-links {
   margin-top: 20px;
   height: 100%;
+  padding-left: 0px;
 }
 
 .nav-links li {
@@ -334,6 +335,9 @@
   margin: 0 auto;
   margin-top: 25px !important;
 }
+.signin-form-container button {
+  margin-top: 25px;
+}
 
 label {
   display: block;
@@ -467,14 +471,17 @@ button:hover {
 
 
 .parent-calendar{
-  position: relative;
-  left:750px;
-  top: 10px;
+  display:flex;
+  color: #ddd;
+  justify-content: end;
+  margin-right: 40px;
 }
+
 .parent-calendar-employee{
-  position: relative;
-  left:850px;
-  top: 50px;
+  display:flex;
+  color: #ddd;
+  justify-content: end;
+  margin-right: 40px;
 
 }
 
@@ -504,4 +511,6 @@ button:hover {
 .custom button:hover {
   background-color: #45a049;
 }
+
+
 
