@@ -32,6 +32,9 @@ urlpatterns = [
     path('employee/delete/<int:employee_id>/', views.delete_employee, name='delete_employee'),
     
      
+    
+
+
      
      
     

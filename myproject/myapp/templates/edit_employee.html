@@ -1,4 +1,4 @@
-{% extends 'index.html' %}
+{% extends 'employeelist.html' %}
 
 {% block title %}Edit Employee{% endblock %}
 
@@ -6,7 +6,7 @@
 <section class="home">
     <p>Edit Employee</p>
     <div class="modal-body">
-    <form method="POST" action="{% url 'edit_employee' employee.id %}">
+    <form method="POST" action="{% url 'edit_employee' employee.id %}" class="form-container">
         {% csrf_token %}
         
         <label for="firstName">First Name:</label>
@@ -16,7 +16,7 @@
         <input type="text" id="lastName" name="lastName" class="form-control" value="{{ employee.last_name }}" required>
 
         <label for="employeeId">Employee ID:</label>
-        <input type="number" id="employeeId" name="employeeId" class="form-control" value="{{ employee.employee_id }}" required readonly>
+        <input type="number" id="employeeId" name="employeeId" class="form-control" value="{{ employee.employee_id }}" required >
 
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" class="form-control" value="{{ employee.username }}" required>

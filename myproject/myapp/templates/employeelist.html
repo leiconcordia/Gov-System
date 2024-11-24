@@ -48,17 +48,58 @@
                             </svg>
                         </a>
                 
-                        <!-- Delete Button -->
+                        
                         <form action="{% url 'delete_employee' employee.id %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ employee.id }}">
                                 <!-- Delete Icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-x" viewBox="0 0 16 16">
                                     <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
                                     <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m-.646-4.854.646.647.646-.647a.5.5 0 0 1 .708.708l-.647.646.647.646a.5.5 0 0 1-.708.708l-.646-.647-.646.647a.5.5 0 0 1-.708-.708l.647-.646-.647-.646a.5.5 0 0 1 .708-.708"/>
                                 </svg>
-                            </button>
+                            </button> 
                         </form>
+
+
+                        
+<div class="modal fade" id="deleteModal-{{ employee.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this employee?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{% url 'delete_employee' employee.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted Successfully',
+                    text: '{{ message|escapejs }}',
+                    showCloseButton: true,
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        });
+    </script>
+{% endif %}
+                        
+                        
                     </div>
                 </td>
                 
@@ -141,6 +182,9 @@ style="
     </div>
 </div>
 
+
+
+
     
 
 <script>
@@ -174,6 +218,8 @@ style="
     // <button onclick="openAddEmployeeModal()">Add Employee</button>
     // <button onclick="openEditEmployeeModal(1, 'John', 'Doe', 'johndoe', 2)">Edit Employee</button>
 </script>
+
+
 
 
 </section>

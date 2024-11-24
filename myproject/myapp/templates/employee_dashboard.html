@@ -8,11 +8,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     
-    {% block nav_content %}
-<p>Recent Attendance for Today</p>
-{% endblock %}
 
- {% block content %}
+
 <section class="home">
     <h1>{{ employee.first_name }} {{ employee.last_name }}</h1>
 
@@ -85,5 +82,3 @@
 
 
 
-
-{% endblock %}

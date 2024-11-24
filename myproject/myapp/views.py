@@ -239,6 +239,7 @@ def edit_employee(request, employee_id):
     if request.method == 'POST':
         # Update the employee's details with the form data
         employee.first_name = request.POST['firstName']
+        employee.employee_id = request.POST['employeeId']
         employee.last_name = request.POST['lastName']
         employee.username = request.POST['username']
         employee.department_name_id = request.POST['department_name']
@@ -262,24 +263,34 @@ def edit_employee(request, employee_id):
 @login_required
 def delete_employee(request, employee_id):
     # Ensure the employee exists
-    employee = Employee.objects.get(pk=employee_id)
+    employee = Employee.objects.get(pk=employee_id)  # This is correct
 
     # Delete the employee
     employee.delete()
+    
+    # Prepare the alert message
+    alert_message = f'Employee "{employee.first_name} {employee.last_name}" deleted successfully!'
+    
+    # Use Django's messages framework to add the alert message
+    messages.success(request, alert_message)
 
     # Redirect back to the employee list page
     return redirect('employeelist')
 
 
+
 @login_required
 def custom_scheduling(request):
+    alert_message = None
+    alert_icon = None
+
     if request.method == 'POST':
         selected_date = request.POST.get('selected_date')
         custom_timein = request.POST.get('custom_timein')
         custom_timeout = request.POST.get('custom_timeout')
         reason = request.POST.get('reason')
 
-        if selected_date and custom_timein and custom_timeout:
+        if selected_date and custom_timein and custom_timeout and reason:
             try:
                 time_in = timezone.datetime.strptime(custom_timein, '%H:%M').time()
                 time_out = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
@@ -289,25 +300,28 @@ def custom_scheduling(request):
                     date=selected_date,
                     defaults={'time_in': time_in, 'time_out': time_out, 'reason': reason}
                 )
-
-                alert_message = 'Custom schedule set successfully!' if created else 'Custom schedule updated successfully!'
+                
+                # Dynamically include the selected_date and reason in the alert message
+                alert_message = (
+                    f'Custom schedule for {reason} set successfully on {selected_date}!'
+                    if created
+                    else f'Custom schedule for "{reason}" updated successfully on {selected_date}!'
+                )
                 alert_icon = 'success'
+            except ValueError as ve:
+                alert_message = f'Error parsing time: {str(ve)}'
+                alert_icon = 'error'
             except Exception as e:
-                alert_message = f'Error: {str(e)}'
+                alert_message = f'An unexpected error occurred: {str(e)}'
                 alert_icon = 'error'
         else:
             alert_message = 'Please provide all required fields!'
             alert_icon = 'warning'
 
-        return render(request, 'custom_scheduling.html', {
-            'alert_message': alert_message,
-            'alert_icon': alert_icon
-        })
-
-    return render(request, 'custom_scheduling.html')
-        
-        
-        
+    return render(request, 'custom_scheduling.html', {
+        'alert_message': alert_message,
+        'alert_icon': alert_icon
+    })
         
         
         
