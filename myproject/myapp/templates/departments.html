@@ -2,7 +2,9 @@
 
 {% block title %}Departments{% endblock %}
 
+
 {% block content %}
+
 
 <section class="home">
     <p>Departments</p>
@@ -44,6 +46,8 @@
             <tr>
                 <th scope="col">Departments</th>
                 <th scope="col">Employees</th>
+                <th scope="col">Present today</th>
+
                 {% comment %} <th scope="col">Late</th>
                 <th scope="col">Absent</th>
                 <th scope="col">On-time</th> {% endcomment %}
@@ -55,9 +59,11 @@
             <tr>
                 <th scope="row">{{ department.name }}</th>
                 <td>{{ department.employees.count }}</td> 
-                {% comment %} <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
+                <td>{% if department.present_today_count > 0 %}{{ department.present_today_count }}{% else %} No present {% endif %}</td> 
+                 {% comment %} <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
                 <td>{% if department.absent_count > 0 %}{{ department.absent_count }}{% else %} {% endif %}</td> 
-                <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td>  {% endcomment %}
+                <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td>   {% endcomment %}
+
                 <td>
                     <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ default_date|date:'Y-m-d' }}" > View
 
@@ -74,6 +80,41 @@
         </tbody>
     </table>
 </div>
+
+<div style="display: flex; align-items: center; justify-content: end; margin-right: 60px;" >
+<button type="button" class="btn btn-primary" 
+data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+Add Department
+</button>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDepartmentModalLabel">Add Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'add_department' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="department_name" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="department_name" name="department_name" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Department</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 </section>
 
 {% endblock %}

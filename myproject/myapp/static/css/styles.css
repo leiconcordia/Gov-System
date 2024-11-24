@@ -350,17 +350,7 @@ input, select {
   margin-top: 5px;
 }
 
-.search{
-  width: 200px;
-  
-}
-.search-parent{
-  position: relative;
-  left:750px;
-  top: 50px;
 
-
-}
 
 
 button {
@@ -462,9 +452,11 @@ button:hover {
   
 }
 .search-parent{
-  position: relative;
-  left:750px;
-  top: -20px;
+  display: flex;
+  justify-content: end;
+  
+  margin-right: 70px;
+  margin-bottom: 10px;  
 
 
 }
@@ -474,9 +466,9 @@ button:hover {
   display:flex;
   color: #ddd;
   justify-content: end;
-  margin-right: 40px;
+  margin-right: 70px;
 }
-
+  
 .parent-calendar-employee{
   display:flex;
   color: #ddd;

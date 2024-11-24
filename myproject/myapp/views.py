@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from .models import Department,Employee, Attendance, CustomSchedule
 from django.utils import timezone
 import pytz
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.contrib.auth.hashers import make_password
 from django.http import HttpResponseNotFound
 from django.contrib import messages
@@ -434,17 +434,40 @@ def get_selected_date(request):
 def departments(request):
     selected_date = get_selected_date(request)
 
+    # Ensure that the selected date is valid (if necessary)
+    if not selected_date:
+        selected_date = timezone.now().date()  # Import timezone if you use it
+
+    # Query departments with attendance counts
     departments = Department.objects.annotate(
         late_count=Count('employees', filter=Q(employees__attendance__arrival_status='late', employees__attendance__date=selected_date)),
         absent_count=Count('employees', filter=Q(employees__attendance__arrival_status='absent', employees__attendance__date=selected_date)),
-        on_time_count=Count('employees', filter=Q(employees__attendance__arrival_status='ontime', employees__attendance__date=selected_date))
+        on_time_count=Count('employees', filter=Q(employees__attendance__arrival_status='ontime', employees__attendance__date=selected_date)),
+        present_today_count=F('late_count') + F('on_time_count')  # Calculate present based on late and on-time counts
     )
-    
+        
     context = {
         "departments": departments,
         "default_date": selected_date,
     }
+    
     return render(request, 'departments.html', context)
+
+
+
+def add_department(request):
+    if request.method == 'POST':
+        department_name = request.POST.get('department_name')
+        if department_name:
+            Department.objects.create(name=department_name)
+            messages.success(request, 'Department added successfully!')
+            return redirect('departments')  # Redirect to the departments list or desired page
+        else:
+            messages.error(request, 'Department name cannot be empty.')
+
+    return render(request, 'add_department.html')  # Render the form template
+
+
 
 @login_required
 def viewdepartment(request, department_id):
