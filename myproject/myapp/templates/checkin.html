@@ -6,6 +6,13 @@
     <title>Attendance System</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/outside.css' %}">
+
+    <!-- Include Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Include Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 </head>
 
 <body>
@@ -17,13 +24,17 @@
             {% csrf_token %}
             <label for="employee_input">Enter Employee ID or Name (First Last): </label>
             <input  type="text" id="employee-name" placeholder="Enter Employee ID/Name" name="employee_input" required>
-            <button type="submit">Log in</button>
+            <button type="submit">Log in</button>   
         </form>
         
        
     </div>
 
-    <script src="{% static 'js/script.js' %}"></script>
+
+    
+      
+
+   
     {% comment %} <script>
         function updateButtonText() {
             // Get the current date and time in the Philippines (UTC+8)
@@ -44,7 +55,123 @@
     
         // Run the function when the page loads
         window.onload = updateButtonText; {% endcomment %}
-    </script>
     
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="false">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="successModalLabel">Attendance Marked</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                  <!-- This content will be dynamically updated -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+    
+          
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const alertMessage = "{{ alert_message|escapejs }}";
+              const employeeName = "{{ employee_name|escapejs }}"; // Pass this from the view.
+          
+              if (alertMessage && employeeName) {
+                // Update modal content
+                document.getElementById('modalBody').textContent = `Attendance of ${employeeName} marked successfully!`;
+          
+                // Show the modal
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+              }
+            });
+          </script>
+
+
+
+          
+          <div class="modal fade" id="timeoutModal" tabindex="-1" aria-labelledby="timeoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="timeoutModalLabel">Time-Out Marked</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="timeoutModalBody">
+                  <!-- This content will be dynamically updated -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const checkinAlertMessage = "{{ alert_message|escapejs }}";
+              const timeoutAlertMessage = "{{ timeout_alert_message|escapejs }}"; // New variable for time-out message
+              const employeeName = "{{ employee_name|escapejs }}"; // Pass this from the view.
+          
+              if (checkinAlertMessage && employeeName) {
+                // Check-in modal logic
+                document.getElementById('modalBody').textContent = `Attendance of ${employeeName} marked successfully!`;
+                const checkinModal = new bootstrap.Modal(document.getElementById('successModal'));
+                checkinModal.show();
+              }
+          
+              if (timeoutAlertMessage && employeeName) {
+                // Time-out modal logic
+                document.getElementById('timeoutModalBody').textContent = `Time-out of ${employeeName} marked successfully!`;
+                const timeoutModal = new bootstrap.Modal(document.getElementById('timeoutModal'));
+                timeoutModal.show();
+              }
+            });
+          </script>
+
+
+
+
+
+          <!-- Already Checked In Modal -->
+<div class="modal fade" id="alreadyCheckedInModal" tabindex="-1" aria-labelledby="alreadyCheckedInModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="alreadyCheckedInModalLabel">Already Checked In</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="alreadyCheckedInModalBody">
+          <!-- This content will be dynamically updated -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const alreadyCheckedInMessage = "{{ already_checked_in_message|escapejs }}";
+      const employeeName = "{{ employee_name|escapejs }}"; // Pass this from the view if needed
+  
+      if (alreadyCheckedInMessage) {
+        // Update the modal body with the alert message
+        document.getElementById('alreadyCheckedInModalBody').textContent = alreadyCheckedInMessage;
+  
+        // Show the modal
+        const alreadyCheckedInModal = new bootstrap.Modal(document.getElementById('alreadyCheckedInModal'));
+        alreadyCheckedInModal.show();
+      }
+    });
+  </script>
+  
+          
+ 
 </body>
 </html>

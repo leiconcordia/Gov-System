@@ -87,11 +87,18 @@ def checkin(request):
             # Save time-in and prevent re-checkin
             attendance.time_in = current_time
             attendance.save()
-            return render(request, 'checkin.html', {'alert_message': 'Attendance marked successfully!'})
+            return render(request, 'checkin.html', {
+    'alert_message': 'Attendance marked successfully!',
+    'employee_name': f"{employee.first_name} {employee.last_name}"
+})
+
 
         # Prevent re-checkin if already checked in and before half_gap_time
         if attendance.time_in is not None and current_time_dt < half_gap_time:
-            return HttpResponse("You have already checked in for today.", status=400)
+             return render(request, 'checkin.html', {
+        'already_checked_in_message': 'You have already checked in for today.',
+        'employee_name': f"{employee.first_name} {employee.last_name}"
+    })
 
         # Time-out logic
         if attendance.time_out is None and current_time_dt >= half_gap_time:
@@ -109,8 +116,10 @@ def checkin(request):
             # Save time-out
             attendance.time_out = current_time_dt
             attendance.save()
-            return render(request, 'checkin.html', {'alert_message': 'Time-out marked successfully!'})
-
+            return render(request, 'checkin.html', {
+        'timeout_alert_message': 'Time-out marked successfully!',
+        'employee_name': f"{employee.first_name} {employee.last_name}"
+    })
     # Render the checkin page if no form has been submitted
     return render(request, 'checkin.html')
 
