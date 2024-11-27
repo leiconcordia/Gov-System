@@ -379,7 +379,8 @@ def login_view(request):
             return redirect('admin_dashboard')
         else:
             print("Login failed")  # Debugging
-            return HttpResponse("Invalid login credentials. Please try again.")
+            messages.warning(request, "Try again")
+            return redirect('login')
     
     if request.user.is_authenticated:
         return redirect('admin_dashboard')
