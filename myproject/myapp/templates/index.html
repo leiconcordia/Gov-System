@@ -44,7 +44,7 @@
         {% url 'departments' as departments_url %}
         {% url 'employeelist' as employeelist_url %}
         {% url 'logout' as logout_url %}
-        {% url 'custom_scheduling' as custom_url %}
+        {% url 'schedule_list' as custom_url %}
       
         <li class="{% if request.path == admin_dashboard_url %}active{% endif %}">
             <a href="{{ admin_dashboard_url }}">

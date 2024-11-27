@@ -369,10 +369,22 @@ button:hover {
 .table-container {
   width: 90%;               /* Adjust width as needed */
   max-height: 300px;        /* Height constraint to enable scrolling */
-  overflow-y: auto;         /* Enables vertical scrolling */
+  overflow-y: scroll;     
+    
   margin: 30px auto;        /* Centering and spacing */
   border-radius: 10px;      /* Rounding table edges */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Hide scrollbar for WebKit browsers */
+.table-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+
+/* Optional: For Firefox */
+.table-container {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: transparent transparent; /* Scrollbar color (thumb and track) */
 }
 
 /* Table styling */
@@ -380,6 +392,7 @@ button:hover {
   width: 100%;
   background-color: transparent;
   border-collapse: collapse;
+  
 }
 
 
@@ -390,7 +403,10 @@ button:hover {
 }
 
 .table thead th {
-  
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
   vertical-align: bottom;
   border-bottom: 2px solid #dee2e6;
   background-color: #000000;

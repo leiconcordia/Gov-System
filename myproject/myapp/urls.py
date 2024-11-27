@@ -16,7 +16,7 @@ urlpatterns = [
     path('departments/', views.departments, name='departments'),
     
 
-    path('set-custom_scheduling/', views.custom_scheduling, name='custom_scheduling'),
+    
     
   
     
@@ -35,7 +35,13 @@ urlpatterns = [
     path('add-department/', views.add_department, name='add_department'),
 
 
-     
-     
-    
+     path('schedules/', views.schedule_list, name='schedule_list'),
+
+
+
+
+    path('edit_sched/<int:schedule_id>/', views.edit_schedule, name='edit_sched'),
+    path('delete_sched/<int:schedule_id>/', views.delete_schedule, name='delete_sched'),
+
+
 ]

@@ -288,11 +288,17 @@ def delete_employee(request, employee_id):
 
 
 
-@login_required
-def custom_scheduling(request):
+
+
+
+
+def schedule_list(request):
+    schedules = CustomSchedule.objects.all()
+    
     alert_message = None
     alert_icon = None
 
+    # Handle form submission for creating or updating a schedule
     if request.method == 'POST':
         selected_date = request.POST.get('selected_date')
         custom_timein = request.POST.get('custom_timein')
@@ -327,15 +333,68 @@ def custom_scheduling(request):
             alert_message = 'Please provide all required fields!'
             alert_icon = 'warning'
 
-    return render(request, 'custom_scheduling.html', {
+    # Render the schedule list with any alert messages
+    return render(request, 'schedule_list.html', {
+        'schedules': schedules,
         'alert_message': alert_message,
         'alert_icon': alert_icon
     })
-        
-        
+
+
+
+@login_required
+def edit_schedule(request, schedule_id):
+    schedule = CustomSchedule.objects.get(id=schedule_id)
+
+    if request.method == 'POST':
+        selected_date = request.POST.get('selected_date')
+        custom_timein = request.POST.get('custom_timein')
+        custom_timeout = request.POST.get('custom_timeout')
+        reason = request.POST.get('reason')
+
+        if selected_date and custom_timein and custom_timeout and reason:
+            try:
+                time_in = timezone.datetime.strptime(custom_timein, '%H:%M').time()
+                time_out = timezone.datetime.strptime(custom_timeout, '%H:%M').time()
+
+                # Update the schedule
+                schedule.date = selected_date
+                schedule.time_in = time_in
+                schedule.time_out = time_out
+                schedule.reason = reason
+                schedule.save()
+
+                return redirect('schedule_list')  # Redirect to the schedule list after editing
+            except ValueError as ve:
+                # Handle error
+                pass
+            except Exception as e:
+                # Handle unexpected error
+                pass
+
+    return render(request, 'schedule_list.html', {'schedule': schedule})
         
         
 
+@login_required
+def delete_schedule(request, schedule_id):
+    try:
+        schedule = CustomSchedule.objects.get(id=schedule_id)
+    except CustomSchedule.DoesNotExist:
+        # Handle the case where the schedule does not exist
+        alert_message = "Schedule not found."
+        alert_icon = "error"
+        return render(request, 'schedule_list.html', {
+            'alert_message': alert_message,
+            'alert_icon': alert_icon,
+            'schedules': CustomSchedule.objects.all()
+        })
+
+    if request.method == 'POST':
+        schedule.delete()
+        return redirect('schedule_list')  # Redirect to the schedule list after deletion
+
+    return render(request, 'confirm_delete.html', {'schedule': schedule})
 
 @login_required
 def admin_dashboard_view(request):
