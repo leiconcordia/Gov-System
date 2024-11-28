@@ -40,7 +40,7 @@
                         <a class="btn btn-info" href="{% url 'view_employee' employee.employee_id %}">Records</a>
                 
                         <!-- Edit Button -->
-                        <a class="btn btn-primary" href="{% url 'edit_employee' employee.id %}">
+                        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEmployeeModal{{ employee.id }}" role="button">
                             <!-- Edit Icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
@@ -157,12 +157,13 @@ style="
             <div class="modal-body">
                 <form action="{% url 'employeelist' %}" method="POST">
                     {% csrf_token %}
+                    <label for="employeeId">Employee ID:</label>
+                    <input type="number" id="employeeId" name="employeeId" class="form-control" required>
                     <label for="firstName">First Name:</label>
                     <input type="text" id="firstName" name="firstName" class="form-control" required>
                     <label for="lastName">Last Name:</label>
                     <input type="text" id="lastName" name="lastName" class="form-control" required>
-                    <label for="employeeId">Employee ID:</label>
-                    <input type="number" id="employeeId" name="employeeId" class="form-control" required>
+                    
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" class="form-control" required>
                     <label for="password">Password:</label>
@@ -197,31 +198,57 @@ style="
         // Show the modal
         $('#employeeModal').modal('show');
     }
-
-    // Open modal for Edit Employee and populate the form
-    function openEditEmployeeModal(employeeId, firstName, lastName, username, departmentId) {
-        // Set the action for the form (edit)
-        document.getElementById('employee_id').value = employeeId; // Set hidden employeeId
-        document.getElementById('firstName').value = firstName;
-        document.getElementById('lastName').value = lastName;
-        document.getElementById('username').value = username;
-        document.getElementById('department').value = departmentId;
-
-        // Change modal title
-        document.getElementById('employeeModalLabel').textContent = 'Edit Employee';
-
-        // Show the modal
-        $('#employeeModal').modal('show');
-    }
-
-    // Example usage for opening the modal from a button or link:
-    // <button onclick="openAddEmployeeModal()">Add Employee</button>
-    // <button onclick="openEditEmployeeModal(1, 'John', 'Doe', 'johndoe', 2)">Edit Employee</button>
+   
 </script>
 
+{% for employee in employees %}
+
+<div class="modal fade" id="editEmployeeModal{{ employee.id }}" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Edit Form -->
+                <form method="POST" action="{% url 'edit_employee' employee.id %}">
+                    {% csrf_token %}
+
+                    <label for="employeeId">Employee ID:</label>
+                    <input type="number" id="employeeId"  class="form-control" value="{{ employee.employee_id }}" readonly >
+                    
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" value="{{ employee.first_name }}" required>
+
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" value="{{ employee.last_name }}" required>
+
+                    <label for="username">Username:</label>
+                    <input type="text"  class="form-control" value="{{ employee.username }}" readonly>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Leave blank if you don't want to change it">
+
+                    <label for="department_name">Department:</label>
+                    <select id="department_name" name="department_name" class="form-control" required>
+                        {% for department in departments %}
+                            <option value="{{ department.id }}" {% if department.id == employee.department_name.id %} selected {% endif %}>{{ department.name }}</option>
+                        {% empty %}
+                            <option value="">No departments available</option>
+                        {% endfor %}
+                  </select>
+                    
+                    <button type="submit" class="btn btn-success mt-3">Update Employee</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+</section>  
 
 
-
-</section>
 
 {% endblock %}

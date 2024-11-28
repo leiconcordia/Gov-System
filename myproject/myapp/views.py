@@ -141,9 +141,9 @@ def signin(request):
                 request.session['employee_id'] = employee.employee_id
                 return redirect('employee-dashboard')  # Redirect to the employee dashboard
             else:
-                messages.error(request, "Invalid username or password.")
+                messages.warning(request, "Invalid username or password.")
         except Employee.DoesNotExist:
-            messages.error(request, "Invalid username or password.")
+            messages.warning(request, "Invalid username or password.")
 
     return render(request, 'signin.html')
 
@@ -192,6 +192,7 @@ def employee_dashboard(request):
 def employeelist(request):
     # Handle the signup process
     if request.method == 'POST':
+        
         # Extract data from the form
         employee_id = request.POST['employeeId']
         first_name = request.POST['firstName']
@@ -199,6 +200,7 @@ def employeelist(request):
         username = request.POST['username']
         password = request.POST['password']
         department_id = request.POST['department_name']
+        
 
         # Create a new Employee instance with hashed password
         employee = Employee(
@@ -237,38 +239,53 @@ def employeelist(request):
     return render(request, 'employeelist.html', context)
 
 
-@login_required
 def edit_employee(request, employee_id):
-    # Fetch the employee using the provided ID
-    employee = Employee.objects.get(pk=employee_id)
-
-    # Fetch all departments for the select field
-    departments = Department.objects.all()
-
+    # Retrieve the employee to edit
+    employee = Employee.objects.get(id=employee_id)
+    
     if request.method == 'POST':
-        # Update the employee's details with the form data
-        employee.first_name = request.POST['firstName']
-        employee.employee_id = request.POST['employeeId']
-        employee.last_name = request.POST['lastName']
-        employee.username = request.POST['username']
-        employee.department_name_id = request.POST['department_name']
+        # Get the department ID from the form
+        department_id = request.POST.get('department_name')
+        
+        try:
+            # Retrieve the department using the ID from the form
+            department = Department.objects.get(id=department_id)
+            
+            # Update the employee's other fields
+            employee.first_name = request.POST.get('firstName')
+            employee.last_name = request.POST.get('lastName')
+            
 
-        # If a new password is provided, update the password
-        if request.POST.get('password'):
-            employee.password = make_password(request.POST['password'])
+            # Only update the password if it's provided
+            if request.POST.get('password'):
+                employee.password = request.POST.get('password')
+            
+            # Assign the retrieved department object to the employee
+            employee.department_name = department
+            
+            # Save the updated employee instance
+            employee.save()
+            
+            # Redirect after saving the employee
+           
 
-        # Save the updated employee details
-        employee.save()
+        except Department.DoesNotExist:
+            # Handle case when the department ID is invalid
+            return render(request, 'employeelist.html', {
+                'employee': employee, 
+                'departments': Department.objects.all(),
+                'error_message': "Department does not exist."
+            })
+    
+    # If it's a GET request, render the form with the employee's existing data
+    return render(request, 'employeelist.html', {
+    'employees': Employee.objects.all(),  # Pass updated employee list
+    'departments': Department.objects.all(),
+    'success_message': "Employee updated successfully."
+})
 
-        # Redirect back to the employee list or wherever you want
-        return redirect('employeelist')
-
-    context = {
-        'employee': employee,
-        'departments': departments
-    }
-    return render(request, 'edit_employee.html', context)
-
+    
+    
 @login_required
 def delete_employee(request, employee_id):
     # Ensure the employee exists
