@@ -1,0 +1,139 @@
+/* Chatbot Toggle Button */
+#toggleChatbot {
+    z-index: 999;
+    position: fixed;
+    bottom: 50px;
+    right: 35px;
+    background: #000000;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 50%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#toggleChatbot:hover {
+    background: #0056b3;
+}
+
+/* Chatbot Container */
+#chatbotContainer {
+    z-index: 999;
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    border: 1px solid #ccc;
+    background: #ffffff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Chatbox */
+#chatbox {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background: #f9f9f9;
+}
+
+.message {
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 75%;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.message.bot {
+    background: #062233;
+    color:#eee;
+    align-self: flex-start;
+}
+
+.message.user {
+    background: #d1c4e9;
+    align-self: flex-end;
+}
+
+/* Quick Replies */
+#quickRepliesContainer {
+    max-height: 150px; /* Set desired fixed height */
+    overflow-y: auto;  /* Enable vertical scrolling */
+    padding-right: 10px;
+}
+
+#quickReplies {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    background: #f9f9f9;
+}
+
+.quick-reply {
+    padding: 8px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.quick-reply:hover {
+    background-color: #0056b3;
+}
+
+/* Scrollbar Styling */
+#chatbox::-webkit-scrollbar {
+    width: 8px;
+}
+
+#chatbox::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+}
+
+#chatbox::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+#closeChatbot {
+    position: absolute;
+    top: 1px;
+    right: 5px;
+    font-size: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #555;
+}
+
+#closeChatbot:hover {
+    color: #f00; /* Red color when hovered */
+}
