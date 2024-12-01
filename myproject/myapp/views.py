@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 from datetime import date
 from datetime import timedelta
+from datetime import datetime
 
 
 
@@ -171,10 +172,11 @@ def employee_dashboard(request):
       # Fetch employee using get_object_or_404
     employee = Employee.objects.get( employee_id=employee_id)
 
-    # Get the selected month from the request
-    selected_month = request.GET.get('month')  # Example: '2023-10' for October 2023
-    
-    attendance_records = Attendance.objects.filter(employee=employee)  # Default to all records
+     # Get the current month in 'YYYY-MM' format as the default
+    current_month = datetime.now().strftime('%Y-%m')
+
+    # Get the selected month from the request, use current_month as default
+    selected_month = request.GET.get('month', current_month)
     
     # Filter attendance records if a month is selected
     if selected_month:
@@ -481,7 +483,6 @@ def login_view(request):
 
 
 
-
 @login_required
 def view_employee(request, employee_id):
     # Assuming employee_id is being passed as a string
@@ -490,8 +491,11 @@ def view_employee(request, employee_id):
         employee = Employee.objects.get(employee_id=employee_id)
     except Employee.DoesNotExist:
         return HttpResponseNotFound("Employee not found.")
-    # Get the selected month from the request
-    selected_month = request.GET.get('month')  # Example: '2023-10' for October 2023
+    # Get the current month in 'YYYY-MM' format as the default
+    current_month = datetime.now().strftime('%Y-%m')
+
+    # Get the selected month from the request, use current_month as default
+    selected_month = request.GET.get('month', current_month)
     
     attendance_records = Attendance.objects.filter(employee=employee)  # Default to all records
     
