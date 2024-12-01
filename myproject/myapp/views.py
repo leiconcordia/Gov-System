@@ -16,6 +16,7 @@ from datetime import date
 from datetime import timedelta
 
 
+
 def get_schedule(current_date):
     # Default time-in and time-out
     default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
@@ -34,6 +35,8 @@ def get_schedule(current_date):
         print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
     
     return time_in, time_out
+
+
 
 def checkin(request):
     # Current time in Philippine timezone
@@ -66,7 +69,11 @@ def checkin(request):
                 first_name, last_name = employee_input.split()
                 employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
             except (Employee.DoesNotExist, ValueError):
-                return HttpResponse("Employee not found.", status=404)
+                return render(request, 'checkin.html', {
+        'employee_not_found': 'please try again.'
+                })
+            
+        
 
         # Get or create attendance record
         attendance, _ = Attendance.objects.get_or_create(employee=employee, date=current_date)
@@ -82,6 +89,7 @@ def checkin(request):
                 attendance.arrival_status = 'absent'
                 attendance.save()
                 return HttpResponse("Time-in period has passed. You are marked absent.", status=400)
+            
 
 
             # Save time-in and prevent re-checkin
