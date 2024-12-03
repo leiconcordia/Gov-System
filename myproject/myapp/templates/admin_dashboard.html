@@ -3,7 +3,33 @@
 {% block title %}Attendance{% endblock %}
 {% block content %}
 <section class="home">
-<p>Recent Attendance for Today</p>
+    <p class="today">Attendance for Today</p>
+
+    <script>
+        window.onload = function() {
+            // Create a new Date object for the current date
+            const today = new Date();
+    
+            // Define an array of month names
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+    
+            // Get the day, month, and year
+            const day = today.getDate();
+            const month = monthNames[today.getMonth()];
+            const year = today.getFullYear();
+    
+            // Format the date as "Month Day, Year"
+            const formattedDate = `${month} ${day}, ${year}`;
+    
+            // Update the content of the paragraph with class 'today'
+            document.querySelector('.today').innerHTML = `Attendance for ${formattedDate}`;
+        }
+    </script>
+    
+
     <div class="table-container">
     <table class="table">
         <thead>

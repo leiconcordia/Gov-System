@@ -30,8 +30,6 @@
             dateInput.value = today;
         }
     </script>
-    
-    
 
     <style>
         .date-input {
@@ -40,54 +38,92 @@
             margin-top: 10px; /* Optional: Add some space above the input */
         }
     </style>
-    <div class="table-container">
-    <table class="table">
+
+
+    
+    <div class="topButtons">
+        <div style="display: flex; align-items: end; justify-content: start;margin-left: 60px;" >
+                    <button type="button" class="btn btn-primary" 
+                    data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                    Add Department
+                    </button>
+    </div>
+
+            <form id="filterRangeForm" class="ms-3" >
+               
+                <input type="number" id="startNumber" class="form-control d-inline-block" placeholder="Start #" style="width: 120px;" />
+                <input type="number" id="endNumber" class="form-control d-inline-block" placeholder="End #" style="width: 120px;" />
+                <button type="button" id="applyFilters" class="btn btn-primary ms-2">Apply Filters</button>
+            </form>
+
+</div>
+
+<div class="table-container">
+    <table class="table" id="departmentTable">
         <thead>
             <tr>
                 <th scope="col">Departments</th>
                 <th scope="col">Employees</th>
                 <th scope="col">Present today</th>
-
-                {% comment %} <th scope="col">Late</th>
-                <th scope="col">Absent</th>
-                <th scope="col">On-time</th> {% endcomment %}
                 <th scope="col">Action</th>
             </tr>
         </thead>
         <tbody>
             {% for department in departments %}
-            <tr>
+            <tr class="departmentRow" data-status="{{ department.status|default:'all' }}">
                 <th scope="row">{{ department.name }}</th>
                 <td>{{ department.employees.count }}</td> 
                 <td>{% if department.present_today_count > 0 %}{{ department.present_today_count }}{% else %} No present {% endif %}</td> 
-                 {% comment %} <td>{% if department.late_count > 0 %}{{ department.late_count }}{% else %} {% endif %}</td> 
-                <td>{% if department.absent_count > 0 %}{{ department.absent_count }}{% else %} {% endif %}</td> 
-                <td>{% if department.on_time_count > 0 %}{{ department.on_time_count }}{% else %} {% endif %}</td>   {% endcomment %}
-
                 <td>
-                    <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ default_date|date:'Y-m-d' }}" > View
-
-                       
-                    </a>
-
+                    <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ default_date|date:'Y-m-d' }}" > View</a>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6">No departments available</td>
+                <td colspan="4">No departments available</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-<div style="display: flex; align-items: center; justify-content: start; 
-margin-left: 90px;" >
-<button type="button" class="btn btn-primary" 
-data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
-Add Department
-</button>
-</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('.departmentRow');  // Correct selector: .departmentRow
+        let selectedStatus = 'all'; // Default to show all statuses
+
+        // Apply filters based on range and status
+        function applyFilters() {
+            const startNumber = parseInt(document.getElementById('startNumber').value) || 1;
+            const endNumber = parseInt(document.getElementById('endNumber').value) || Number.MAX_SAFE_INTEGER;
+
+            rows.forEach((row, index) => {
+                const rowIndex = index + 1;  // 1-based index for row (instead of 0-based)
+                const rowStatus = row.getAttribute('data-status').trim().toLowerCase();  // Check the data-status attribute
+
+                // Check if row satisfies both the range and status filters
+                const inRange = rowIndex >= startNumber && rowIndex <= endNumber;
+                const matchesStatus = selectedStatus === 'all' || rowStatus === selectedStatus;
+
+                // Show or hide the row based on whether it matches both filters
+                row.style.display = (inRange && matchesStatus) ? '' : 'none';
+            });
+        }
+
+        // Trigger the filter logic when the "Apply Filters" button is clicked
+        document.getElementById('applyFilters').addEventListener('click', applyFilters);
+    });
+</script>
+
+
+
+
+
+
+
+
 
 
 <!-- Modal -->

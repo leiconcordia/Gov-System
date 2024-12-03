@@ -371,7 +371,8 @@ button:hover {
   max-height: 300px;        /* Height constraint to enable scrolling */
   overflow-y: scroll;     
     
-  margin: 30px auto;        /* Centering and spacing */
+  margin: 30px auto;   
+  margin-top: 10px;     /* Centering and spacing */
   border-radius: 10px;      /* Rounding table edges */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -483,6 +484,7 @@ button:hover {
   color: #ddd;
   justify-content: end;
   margin-right: 70px;
+  
 }
   
 .parent-calendar-employee{
@@ -520,5 +522,24 @@ button:hover {
   background-color: #45a049;
 }
 
+.topButtons{
+  display: flex;
+  justify-content: start;
+  align-items: flex-end;
+  margin-bottom: 0;
+  gap:20px;
+}
+.topButtons .ms-3  {
+  display: flex;
+  justify-content: start;
+  align-items: end;
+  
+  
+}
 
 
+#filterRangeForm {
+  display: flex;
+  flex-direction: row;
+  gap: 5px; /* Adds space between the elements (input and button) */
+}

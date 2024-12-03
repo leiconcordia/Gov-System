@@ -6,14 +6,36 @@
 
 <section class="home">
     <p>Employee list</p>
-    
-    <!-- Search Bar -->
+ 
     <!-- Search Bar -->
 <form method="GET" action="{% url 'employeelist' %}" class="search-parent">
   <input type="search" name="search" placeholder="Search..." class="search" value="{{ request.GET.search }}" />
   <button type="submit">Search</button>
   
 </form>
+
+
+
+
+
+<div class="topButtons">
+    <div style="display: flex; align-items: end; justify-content: start;margin-left: 60px;" >
+                <button type="button" class="btn btn-primary" 
+                data-bs-toggle="modal" data-bs-target="#signupModal">
+                Add employee
+                </button>
+</div>
+
+        <form id="filterRangeForm" class="ms-3" >
+           
+            <input type="number" id="startNumber" class="form-control d-inline-block" placeholder="Start #" style="width: 120px;" />
+            <input type="number" id="endNumber" class="form-control d-inline-block" placeholder="End #" style="width: 120px;" />
+            <button type="button" id="applyFilters" class="btn btn-primary ms-2">Apply Filters</button>
+        </form>
+
+</div>
+
+
 
 
 
@@ -30,28 +52,36 @@
         
         <tbody>
             {% for employee in employees %}
-            <tr>
+            <tr class="employeeListRow"  data-status="{{ employee.status|default:'all' }}">
                 <th scope="row">{{ employee.employee_id }}</th>
                 <td>{{ employee.first_name }} {{ employee.last_name }}</td>
                 <td>{{ employee.department_name }}</td>
                 <td>
-                    <div class="btn-group" style="display: flex; flex-direction: row; align-items: center; gap: 5px;  ">
+                    <div class="btn-group" style="display: flex; flex-direction: row; align-items: center; gap: 5px; justify-content:center;">
                         <!-- View Record Button -->
-                        <a class="btn btn-info" href="{% url 'view_employee' employee.employee_id %}">Records</a>
-                
+                        <a  href="{% url 'view_employee' employee.employee_id %}">
+                        <button class="btn btn-primary" >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-file-earmark-text-fill" viewBox="0 0 16 16">
+                                <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1z"/>
+                              </svg>
+                            </button>
+                        </a>
+                        
                         <!-- Edit Button -->
-                        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editEmployeeModal{{ employee.id }}" role="button">
+                        <a  data-bs-toggle="modal" data-bs-target="#editEmployeeModal{{ employee.id }}" role="button">
                             <!-- Edit Icon -->
+                            <button class="btn btn-info">
                             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                 <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                                 <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
                             </svg>
+                        </button>
                         </a>
                 
                         
                         <form action="{% url 'delete_employee' employee.id %}" method="POST">
                             {% csrf_token %}
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ employee.id }}">
+                            <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ employee.id }}">
                                 <!-- Delete Icon -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-person-x" viewBox="0 0 16 16">
                                     <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m.256 7a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
@@ -113,36 +143,39 @@
         </tbody>
     </table>
 </div>
-<div class='add-emp'
 
-style="
-    
-    display: flex; 
-    align-items: center; 
-    justify-content: start; 
-    margin-left: 90px;
-    ">
-<button title="Add new employee" type="button" 
-class="bx bx-user-plus"
-data-bs-toggle="modal" 
-data-bs-target="#signupModal"
-style="
-    width: 80px; 
-    height: 80px; 
-    border-radius: 50%; 
-    font-size: 24px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-   
-    color: white; 
-    border: none; 
-    cursor: pointer; 
-    ">
-    
 
-</button>
-</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('.employeeListRow');  // Correct selector: .departmentRow
+        let selectedStatus = 'all'; // Default to show all statuses
+
+        // Apply filters based on range and status
+        function applyFilters() {
+            const startNumber = parseInt(document.getElementById('startNumber').value) || 1;
+            const endNumber = parseInt(document.getElementById('endNumber').value) || Number.MAX_SAFE_INTEGER;
+
+            rows.forEach((row, index) => {
+                const rowIndex = index + 1;  // 1-based index for row (instead of 0-based)
+                const rowStatus = row.getAttribute('data-status').trim().toLowerCase();  // Check the data-status attribute
+
+                // Check if row satisfies both the range and status filters
+                const inRange = rowIndex >= startNumber && rowIndex <= endNumber;
+                const matchesStatus = selectedStatus === 'all' || rowStatus === selectedStatus;
+
+                // Show or hide the row based on whether it matches both filters
+                row.style.display = (inRange && matchesStatus) ? '' : 'none';
+            });
+        }
+
+        // Trigger the filter logic when the "Apply Filters" button is clicked
+        document.getElementById('applyFilters').addEventListener('click', applyFilters);
+    });
+</script>
+
+
 
 
 <!-- Modal -->
