@@ -18,52 +18,55 @@
 
 <body>
     
+
+
     <div class="form-container">
         
-        <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
-            <img src="../static/images/ormoclogo.png" style="position:absolute; width:60px; height:60px; margin-left:1450px; margin-top:10px;">
-            {% csrf_token %}
-            <label for="employee_input">Enter Employee ID or Name (First Last): </label>
-            <input  type="text" id="employee-name" placeholder="Enter Employee ID/Name" name="employee_input" required>
-            <button type="submit">Log in</button>   
-        </form>
-        
-       
-    </div>
+      <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
+          {% csrf_token %}
+          <label for="" style="position: absolute; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; color: white; font-size: 30px; margin-top: -60px; margin-left: 75px; font-weight: bold">Employee Time Log In </label>
+          <input  type="text" id="employee-name" placeholder="Enter Employee ID/Name" name="employee_input" required>
+          <button type="submit" id="logButton">{{ button_text|default:'Log attendance' }}</button>
+      </form>
+      
+     
+  </div>
 
 
     
       
 
    
-    {% comment %} <script>
-        function updateButtonText() {
-            // Get the current date and time in the Philippines (UTC+8)
-            const now = new Date();
-            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const phTime = new Date(utcTime + (8 * 60 * 60 * 1000));
-    
-            // Check if the time is past 12:00 PM
-            const hours = phTime.getHours();
-            const minutes = phTime.getMinutes();
-    
-            const loginButton = document.getElementById('checkin-btn');
-    
-            if (hours > 12 || (hours === 12 && minutes > 0)) {
-                loginButton.textContent = 'Log Out';
-            }
-        }
-    
-        // Run the function when the page loads
-        window.onload = updateButtonText; {% endcomment %}
+<!-- Pass the half_gap_time to JavaScript -->
+<script>
+  const halfGapTime = "{{ half_gap_time }}";  // Get half_gap_time from Python
+  const logButton = document.getElementById("logButton");
 
-        {% comment %}  for attendanced marked {% endcomment %}
+  // Function to check if half_gap_time has passed
+  function checkHalfGapTime() {
+      const now = new Date();
+      const [hour, minute] = halfGapTime.split(":");
+      const halfGapDate = new Date();
+      halfGapDate.setHours(hour, minute, 0, 0);  // Set the half_gap_time
+
+      // If the current time is after half_gap_time, change the button text to 'Time Out'
+      if (now >= halfGapDate) {
+          logButton.textContent = 'Log out';
+          console.log("Button text changed to 'Time Out'");
+      } else {
+          logButton.textContent = 'Log in';
+      }
+  }
+
+  // Run the check when the page loads
+  checkHalfGapTime();
+</script>
     
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="false">
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="successModalLabel">Attendance Marked</h5>
+                  <h5 class="modal-title" id="successModalLabel">Log-In Marked</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modalBody">
@@ -100,7 +103,7 @@
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="timeoutModalLabel">Time-Out Marked</h5>
+                  <h5 class="modal-title" id="timeoutModalLabel">Log-Out Marked</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="timeoutModalBody">
@@ -145,7 +148,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="alreadyCheckedInModalLabel">Already Checked In</h5>
+          <h5 class="modal-title" id="alreadyCheckedInModalLabel">Already Log-In</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="alreadyCheckedInModalBody">

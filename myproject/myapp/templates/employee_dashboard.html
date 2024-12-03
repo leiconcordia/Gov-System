@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}ORMOC LGU ATTENDANCE{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/employee-dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
     
 
@@ -48,8 +48,7 @@
         });
     </script> {% endcomment %}
     
-    <a href="{% url 'employee-dashboard' %}" class="btn">Back</a>
-    <a href="{% url 'signin' %}" class="btn">logout</a>
+    
 
     <div class="table-container">
     <table class="table">
@@ -80,9 +79,9 @@
     </table>
 </div>  
 
-
-
-
+<div class="logout"> 
+<a href="{% url 'signin' %}" class="Logout_btn">logout</a>
+</div> 
 
 
      <!-- Chatbot Toggle Button -->

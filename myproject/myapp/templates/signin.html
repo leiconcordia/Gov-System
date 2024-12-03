@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance System</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/outside.css' %}">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+ 
+
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -16,19 +19,39 @@
 </head>
 
 <body>
-    
-    <div class="signin-form-container">
-        
-        <form action="{% url 'signin' %}" method="POST">
+
+  <div class="form-container">
+    <form action="{% url 'signin' %}" method="POST" id="login-form" >
             {% csrf_token %}
+            <h1>Sign In</h1>
            
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <div class="inputbox"><svg xmlns="http://www.w3.org/2000/svg" fill="white" class="bi bi-person" viewBox="0 0 16 16">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+            </svg>
+              <ion-icon name="email-outline"></ion-icon>
+              <input type="text" id="username" name="username" required>
+              <label for="">Username</label>
+          </div>
+          <div class="inputbox"><svg xmlns="http://www.w3.org/2000/svg"  fill="white" class="bi bi-lock" viewBox="0 0 16 16">
+              <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2M5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1"/>
+            </svg>
+              <ion-icon name="password-outline"></ion-icon>
+              <input type="password" id="password" name="password" required>
+              <label for="">Password</label>
+          </div> 
             
-            <button type="submit">Sign in</button>
+          <button type="submit" >
+                
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            Login
+            
+        </button>
+        
+        
+      
         </form>
     </div>
 
@@ -77,5 +100,123 @@
 {%endif%}
 
     <script src="{% static 'js/script.js' %}"></script>
+
+
+       <!-- Chatbot Toggle Button -->
+       <button id="toggleChatbot">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16">
+       <path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.6 26.6 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.93.93 0 0 1-.765.935c-.845.147-2.34.346-4.235.346s-3.39-.2-4.235-.346A.93.93 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a25 25 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25 25 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135"/>
+       <path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"/>
+     </svg>
+     </button>
+     
+     
+     <!-- Chatbot Container -->
+     <div id="chatbotContainer" style="display: none;">
+       <!-- Close Button (×) -->
+       <button id="closeChatbot" >&times;</button>
+     
+       <div id="chatbox"></div>
+     
+       <!-- Quick Reply Buttons -->
+       <hr style="border-top: 10px solid black">
+       <div id="quickRepliesContainer">
+           <div id="quickReplies">
+               <!-- Quick reply buttons will be added dynamically here -->
+           </div>
+       </div>
+     </div>
+     
+     
+       
+      
+          <!-- JavaScript -->
+          <script>
+     
+           document.getElementById('closeChatbot').addEventListener('click', function () {
+             // Hide the chatbot container
+             document.getElementById('chatbotContainer').style.display = 'none';
+             // Optionally, clear the chatbox and quick replies when closing
+             document.getElementById('chatbox').innerHTML = '';
+             document.getElementById('quickReplies').innerHTML = '';
+         });
+     
+         
+     
+           document.getElementById('toggleChatbot').addEventListener('click', function () {
+             let chatbotContainer = document.getElementById('chatbotContainer');
+             if (chatbotContainer.style.display === 'none' || chatbotContainer.style.display === '') {
+                 chatbotContainer.style.display = 'flex';
+         
+                 // Add initial bot message and quick replies
+                 let message = "Hi! I'm FAQ support. You can ask me questions by clicking the buttons below:";
+                 let options = 
+                 [
+                 "How can I check my attendance records?",
+                 "Can I see my attendance for future months?",
+                 "What happens if I need to check my attendance from a past month?",
+                 "How do I check my attendance for the current month?",
+                 "Can I edit my attendance records?",
+                 "Goodbye"
+                    ];
+                 displayMessage(message, 'bot');
+                 displayQuickReplies(options);
+             } else {
+                 chatbotContainer.style.display = 'none';
+                 document.getElementById('chatbox').innerHTML = '';
+                 document.getElementById('quickReplies').innerHTML = '';
+             }
+         });
+         
+         document.getElementById('quickReplies').addEventListener('click', function (event) {
+             if (event.target.classList.contains('quick-reply')) {
+                 let userInput = event.target.textContent; // Get the text of the clicked button
+                 displayMessage(userInput, 'user');
+                 let response = getResponse(userInput);
+                 displayMessage(response, 'bot');
+         
+                 // Optionally, clear and add new quick replies based on the context
+                 if (userInput === "Bye") {
+                     document.getElementById('quickReplies').innerHTML = ''; // Clear replies
+                 }
+             }
+         });
+         
+         function displayMessage(message, sender) {
+             let chatbox = document.getElementById('chatbox');
+             let messageElement = document.createElement('div');
+             messageElement.className = `message ${sender}`;
+             messageElement.textContent = message;
+             chatbox.appendChild(messageElement);
+             chatbox.scrollTop = chatbox.scrollHeight; // Scroll to the bottom
+         }
+         
+         function displayQuickReplies(options) {
+             let quickReplies = document.getElementById('quickReplies');
+             quickReplies.innerHTML = ''; // Clear existing replies
+         
+             options.forEach(option => {
+                 let button = document.createElement('button');
+                 button.className = 'quick-reply';
+                 button.textContent = option;
+                 quickReplies.appendChild(button);
+             });
+         }
+         
+         function getResponse(input) {
+          const responses = {
+            "How can I check my attendance records?": "You can view your attendance records for the current month and the previous months. Just select the month you'd like to view.",
+            "Can I see my attendance for future months?": "No, you can only view your attendance records for the current and past months.",
+            "What happens if I need to check my attendance from a past month?": "You can select the specific past month to view your attendance records for that period.",
+            "How do I check my attendance for the current month?": "Your current month's attendance will be displayed automatically when you log in. You can view your check-in and check-out times for each day.",
+            "Can I edit my attendance records?": "No, your attendance records are automatically tracked and cannot be edited manually. If there is an error, please contact HR.",
+            "Goodbye": "Goodbye! Have a great day ahead!"
+          }
+          
+         
+             return responses[input] || "I'm not sure how to respond to that.";
+         }
+         
+          </script>
 </body>
 </html>

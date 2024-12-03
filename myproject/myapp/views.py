@@ -57,6 +57,12 @@ def checkin(request):
     gap_time = time_out_dt - time_in_dt
     half_gap_time = time_in_dt + gap_time / 2  # Halfway point in datetime
     print(f"Time-in: {time_in}, Time-out: {time_out}, Half Gap Time: {half_gap_time.time()}")
+    
+    half_gap_time_str = half_gap_time.time().strftime('%H:%M')
+    button_text = 'Log in'  # Default to Time In
+    
+    
+    
 
     if request.method == 'POST':
         employee_input = request.POST.get('employee_input')
@@ -98,7 +104,8 @@ def checkin(request):
             attendance.save()
             return render(request, 'checkin.html', {
     'alert_message': 'Attendance marked successfully!',
-    'employee_name': f"{employee.first_name} {employee.last_name}"
+    'employee_name': f"{employee.first_name} {employee.last_name}",
+    
 })
 
 
@@ -127,10 +134,15 @@ def checkin(request):
             attendance.save()
             return render(request, 'checkin.html', {
         'timeout_alert_message': 'Time-out marked successfully!',
-        'employee_name': f"{employee.first_name} {employee.last_name}"
+        'employee_name': f"{employee.first_name} {employee.last_name}",
     })
     # Render the checkin page if no form has been submitted
-    return render(request, 'checkin.html')
+    return render(request, 'checkin.html', {
+        'button_text': button_text,
+        'half_gap_time': half_gap_time_str,  # Pass half_gap_time to the template
+    })
+        
+        
 
 
 
