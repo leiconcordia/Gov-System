@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from .models import Department,Employee, Attendance, CustomSchedule
+from .models import Department,Employee, Attendance, CustomSchedule, OvertimeSetting
 from django.utils import timezone
 import pytz
 from django.db.models import Count, Q, F
@@ -52,6 +52,10 @@ def checkin(request):
     current_time_dt = timezone.datetime.combine(current_date, current_time)
     time_in_dt = timezone.datetime.combine(current_date, time_in)
     time_out_dt = timezone.datetime.combine(current_date, time_out)
+    
+    overtime_setting = OvertimeSetting.objects.first()  # Assuming only one setting
+    overtime_duration_hours = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 if not set
+    overtime_window = time_out_dt + timedelta(hours=overtime_duration_hours)
 
     # Calculate half-gap time
     gap_time = time_out_dt - time_in_dt
@@ -118,7 +122,7 @@ def checkin(request):
 
         # Time-out logic
         if attendance.time_out is None and current_time_dt >= half_gap_time:
-            overtime_window = time_out_dt + timedelta(hours=3)
+            overtime_window = time_out_dt + timedelta(hours=overtime_duration_hours)
 
             if time_out_dt <= current_time_dt < overtime_window:
                 attendance.timeout_status = 'on time'
@@ -437,26 +441,64 @@ def delete_schedule(request, schedule_id):
 
 @login_required
 def admin_dashboard_view(request):
-    # Get today's date
+    # Get today's date in Philippine timezone
     today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
+
+    # Fetch today's attendance records
     attendance_records = Attendance.objects.filter(date=today)
-    
-    # Fetch attendance records for today
-    attendance_records = Attendance.objects.filter(date=today)
-    
+
+    # Fetch the current overtime setting
+    overtime_setting = OvertimeSetting.objects.first()
+    current_overtime_duration = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 hours
+
     print(f"Attendance records for today: {attendance_records}")
-    
+
     # Check if the attendance records contain any data
     if not attendance_records.exists():
         print("No attendance records found for today.")
     else:
         print(f"Found {attendance_records.count()} attendance records for today.")
 
+    # Handle overtime duration update if form is submitted
+    if request.method == 'POST':
+        # Get the new overtime duration from the form
+        new_overtime_duration = int(request.POST.get('overtime_duration'))
+
+        # Validate the input
+        if new_overtime_duration < 1:
+            return render(request, 'admin_dashboard.html', {
+                'attendance_records': attendance_records,
+                'overtime_duration': current_overtime_duration,
+                'error_message': 'Overtime duration must be at least 1 hour.'
+            })
+
+        # Update the overtime setting in the database
+        if overtime_setting:
+            overtime_setting.overtime_duration_hours = new_overtime_duration
+            overtime_setting.save()
+        else:
+            # Create a new overtime setting if one doesn't exist
+            OvertimeSetting.objects.create(overtime_duration_hours=new_overtime_duration)
+
+        # After updating, redirect with a success message
+        return render(request, 'admin_dashboard.html', {
+            'attendance_records': attendance_records,
+            'overtime_duration': new_overtime_duration,
+            'overtime_updated': True
+        })
+
+    # Render the admin dashboard template with attendance records and overtime duration
     context = {
-        'attendance_records': attendance_records
+        'attendance_records': attendance_records,
+        'overtime_duration': current_overtime_duration,
     }
     
-    return render(request, 'admin_dashboard.html', context)
+    return render(request, 'admin_dashboard.html', context)  # Ensure return here!
+
+
+
+
+
 
 def logout_view(request):
     logout(request)
