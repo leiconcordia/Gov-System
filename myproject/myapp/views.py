@@ -18,6 +18,8 @@ from datetime import datetime
 
 
 
+
+
 def get_schedule(current_date):
     # Default time-in and time-out
     default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
@@ -444,8 +446,12 @@ def admin_dashboard_view(request):
     # Get today's date in Philippine timezone
     today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
 
-    # Fetch today's attendance records
-    attendance_records = Attendance.objects.filter(date=today)
+    # # Fetch today's attendance records
+    # attendance_records = Attendance.objects.filter(date=today)
+    # Fetch non-absent employees
+    attendance_records = get_non_absent_employees()
+    
+    
 
     # Fetch the current overtime setting
     overtime_setting = OvertimeSetting.objects.first()
@@ -486,6 +492,7 @@ def admin_dashboard_view(request):
             'overtime_duration': new_overtime_duration,
             'overtime_updated': True
         })
+        
 
     # Render the admin dashboard template with attendance records and overtime duration
     context = {
@@ -494,6 +501,10 @@ def admin_dashboard_view(request):
     }
     
     return render(request, 'admin_dashboard.html', context)  # Ensure return here!
+
+
+
+
 
 
 
@@ -626,72 +637,36 @@ def viewdepartment(request, department_id):
     department = Department.objects.get(id=department_id)
     selected_date = get_selected_date(request)
     
+    # Filter attendance records for non-absent employees
     employees = Employee.objects.filter(department_name=department)
-    attendance_records = Attendance.objects.filter(employee__in=employees, date=selected_date)
-   
+    attendance_records = Attendance.objects.filter(
+        employee__in=employees, 
+        date=selected_date
+    ).exclude(arrival_status='absent')  # Exclude absent employees
+    
+    # Get a list of employees that are not absent
+    non_absent_employees = employees.filter(id__in=attendance_records.values_list('employee', flat=True))
+
     return render(request, 'viewdepartments.html', {
         'department': department,
-        'employees': employees,
+        'employees': non_absent_employees,  # Only show non-absent employees
         'attendance_records': attendance_records,
         'default_date': selected_date,
     })
 
 
 
-# def get_today_attendance(employee_id):
+def get_non_absent_employees(date=None):
+    # If no date is provided, use today's date
+    if not date:
+        philippine_tz = pytz.timezone('Asia/Manila')
+        date = timezone.now().astimezone(philippine_tz).date()
 
-#     today = timezone.now().date()
+    # Fetch attendance records for today where the employee is not absent
+    attendance_records = Attendance.objects.filter(date=date).exclude(arrival_status='absent')
 
-#     attendance = Attendance.objects.filter(employee_id=employee_id, date=today)
-
-#     if attendance.exists():
-
-#         return attendance.first()
-
-#     else:
-
-#         return None
+    # Ensure that only employees with attendance records for the selected date are included
+    non_absent_employees = attendance_records.values_list('employee', flat=True)
     
-# @login_required
-# def viewdepartment(request, department_id):
-#     # Fetch the department based on the provided department_id
-#     department = Department.objects.get(id=department_id)
-    
-#     # Get all employees associated with the department
-#     employees = Employee.objects.filter(department_name_id=department_id)
-    
-#     # Initialize an empty dictionary to store attendance data
-#     attendance_data = {}
-    
-#     # Loop through each employee and get their attendance for today
-#     for employee in employees:
-
-#         attendance = get_today_attendance(employee.id)
-
-#         if attendance:
-
-#             attendance_data[employee.id] = {
-
-#                 'status': attendance.status,
-
-#                 'time': attendance.time,
-
-#             }
-
-#         else:
-
-#             attendance_data[employee.id] = {
-
-#                 'status': 'not yet marked',
-
-#                 'time': 'not yet marked',
-
-#             }
-    
-#     # Render the template with the department, employees, and attendance data
-#     return render(request, 'viewdepartments.html', {
-#         'department': department,
-#         'employees': employees,
-#         'attendance_data': attendance_data,
-#     })
-
+    # Return attendance records for non-absent employees
+    return Attendance.objects.filter(employee__in=non_absent_employees, date=date)
