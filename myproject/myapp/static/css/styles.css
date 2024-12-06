@@ -544,3 +544,23 @@ button:hover {
   gap: 5px; /* Adds space between the elements (input and button) */
 }
 
+.parent-calendar-employee{
+  display: flex;
+  flex-direction: row;
+  
+  justify-content: end;
+  margin-right: 69px;
+  align-items: center;;
+  
+}
+.table-container-pdf {
+  width: 90%;               /* Adjust width as needed */
+  height: 100%;        /* Height constraint to enable scrolling */
+     
+    
+  margin: 30px auto;   
+  margin-top: 10px;     /* Centering and spacing */
+  border-radius: 10px;      /* Rounding table edges */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+

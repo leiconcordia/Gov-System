@@ -15,10 +15,55 @@ from django.contrib.auth.hashers import check_password
 from datetime import date
 from datetime import timedelta
 from datetime import datetime
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+import html 
+def generate_pdf(request, employee_id):
+    # Fetch employee by employee_id (which is a CharField)
+    employee = Employee.objects.get(employee_id=employee_id)
 
+    # Get the current month in 'YYYY-MM' format as the default
+    current_month = datetime.now().strftime('%Y-%m')
 
+    # Get the selected month from the request, use current_month as default
+    selected_month = request.GET.get('month', current_month)
 
+    # Fetch attendance records for the employee
+    attendance_records = Attendance.objects.filter(employee=employee)
 
+    # Filter attendance records if a month is selected
+    if selected_month:
+        try:
+            year, month = map(int, selected_month.split('-'))  # Unpack year and month
+            attendance_records = attendance_records.filter(
+                date__year=year,
+                date__month=month
+            )
+        except ValueError:
+            # Handle the error if the format is incorrect
+            attendance_records = Attendance.objects.filter(employee=employee)
+
+    # Render the HTML content from the template and pass the employee and attendance records
+    html = render_to_string('view_employee.html', {
+        'employee': employee,
+        'attendance_records': attendance_records,
+        'selected_month': selected_month,
+    })
+
+    # Create a PDF from the rendered HTML
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{employee.first_name}_{employee.last_name}_attendance.pdf"'  # Open in a new tab
+
+    # Convert HTML to PDF
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    # Check for errors
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html.escape(pisa_status.err) + '</pre>')
+
+    
+    response['Content-Disposition'] = 'inline; filename="file.pdf"'  # This will open in a new tab
+    return response
 
 def get_schedule(current_date):
     # Default time-in and time-out
@@ -38,6 +83,52 @@ def get_schedule(current_date):
         print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
     
     return time_in, time_out
+
+
+
+# def mark_absent_for_missing_checkins(current_date):
+#     # Get the current time in Philippine timezone
+#     now_utc = timezone.now()
+#     philippine_tz = pytz.timezone('Asia/Manila')
+#     now_philippine = now_utc.astimezone(philippine_tz)
+#     current_time = now_philippine.time()
+
+#     # Print current time for debugging
+#     print(f"Current Time: {current_time}")
+
+#     # Fetch the time-in and time-out for today
+#     time_in, time_out = get_schedule(current_date)
+#     time_in_dt = timezone.datetime.combine(current_date, time_in)
+#     time_out_dt = timezone.datetime.combine(current_date, time_out)
+
+#     # Calculate the half-gap time (e.g., 9:30 AM if time_in is 9:00 AM)
+#     gap_time = time_out_dt - time_in_dt
+#     half_gap_time = time_in_dt + gap_time / 2  # Midway point between time_in and time_out
+
+#     # Print half_gap_time for debugging
+#     print(f"Half Gap Time: {half_gap_time.time()}")
+
+#     # Only proceed if the current time is after the half-gap time (after check-in period)
+#     if current_time >= half_gap_time.time():
+#         print("Current time is after the half-gap time. Checking absenteeism...")
+
+#         # Get all employees or filter as needed
+#         employees = Employee.objects.all()
+
+#         for employee in employees:
+#             # Get the attendance record for the employee
+#             try:
+#                 attendance = Attendance.objects.get(employee=employee, date=current_date)
+#                 # If the employee hasn't checked in (no time_in), mark them as absent
+#                 if attendance.time_in is None:
+#                     attendance.arrival_status = 'absent'
+#                     attendance.save()
+#                     print(f"Employee {employee.first_name} {employee.last_name} marked absent.")
+#             except Attendance.DoesNotExist:
+#                 print(f"No attendance record found for {employee.first_name} {employee.last_name}.")
+#     else:
+#         print(f"The time is before the half-gap time: {half_gap_time.time()}. Absenteeism will not be checked.")
+
 
 
 
@@ -99,8 +190,7 @@ def checkin(request):
                 attendance.arrival_status = 'late'
             else:
                 # If time-in period has passed and no check-in is recorded
-                attendance.arrival_status = 'absent'
-                attendance.save()
+                
                 return HttpResponse("Time-in period has passed. You are marked absent.", status=400)
             
 

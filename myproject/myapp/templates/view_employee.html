@@ -5,11 +5,15 @@
 {% block content %}
 
 <section class="home">
-    <h1>{{ employee.first_name }} {{ employee.last_name }}</h1>
+    <p>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record</p>
 
+
+    <div style="display: flex; justify-content: end; align-items: end; margin-right: 69px; margin-bottom: 50px;">
+        <a href="{% url 'employeelist' %}" class="btn-close btn-close-white" disabled aria-label="Close"></a>
+    </div>
     <!-- Month and Year Selection -->
-    <form method="GET" action="">
-        <label for="month">Select Month and Year:</label>
+    <form method="GET" action="" class="parent-calendar-employee">
+        
         <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" required>
         <button type="submit">Submit</button>
     </form>
@@ -18,30 +22,14 @@
         .month-input{
             width: 200px; /* Adjust the width as needed */
             padding: 5px; /* Optional: Add some padding for better appearance */
-            margin-top: 10px; 
+            margin-right: 5px;  /* Optional: Add some space above the input */
+            
         }
+       
     </style>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Get the current date
-            const today = new Date();
-            
-            // Format the current month and year in YYYY-MM format
-            const currentYear = today.getFullYear();
-            const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-            const currentMonthYear = `${currentYear}-${currentMonth}`;
-    
-            // Set the input value to the current month
-            const monthInput = document.getElementById("month");
-            monthInput.value = currentMonthYear; // Set the current month as the value
-    
-            // Set the max attribute to the current month to disable future months
-            monthInput.setAttribute("max", currentMonthYear);
-        });
-    </script>
-    
-    
+
+   
 
     <div class="table-container">
     <table class="table">
@@ -72,14 +60,124 @@
     </table>
 </div>
 
-<a href="{% url 'employeelist' %}" class="btn">
 
-    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-arrow-90deg-left" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M1.146 4.854a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H12.5A2.5 2.5 0 0 1 15 6.5v8a.5.5 0 0 1-1 0v-8A1.5 1.5 0 0 0 12.5 5H2.707l3.147 3.146a.5.5 0 1 1-.708.708z"/>
-      </svg>
-</a>
+
+<button id="download-button">Download as PDF</button>
+
+<!-- Hidden content for PDF generation -->
+<div id="pdf-content" style="display: none;">
+    <h2>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record </h2>
+    <h2>Date: {{ selected_month }}</h2>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time In</th>
+                    <th scope="col">Arrival Status</th>
+                    <th scope="col">Time Out</th>
+                    <th scope="col">Leaving Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr>
+                    <th scope="row">{{ record.date }}</th>
+                    <td>{{ record.time_in|time:"g:i a" }}</td>
+                    <td>{{ record.arrival_status }}</td>
+                    <td>{{ record.time_out|time:"g:i a" }}</td>
+                    <td>{{ record.timeout_status }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No attendance records available for this month.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add jsPDF and html2canvas libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+
+<script>
+    console.log(window.html2canvas); // Ensure html2canvas is loaded
+    console.log(window.jspdf);      // Ensure jsPDF is loaded
+
+    document.getElementById('download-button').addEventListener('click', function () {
+        const element = document.getElementById('pdf-content');
+
+        if (!element) {
+            console.error('PDF content element not found');
+            return;
+        }
+
+        // Temporarily clone the hidden content to keep it hidden
+        const clone = element.cloneNode(true);
+        clone.style.display = 'block'; // Ensure the clone is visible for capture
+        clone.style.position = 'absolute';
+        clone.style.top = '-9999px'; // Move it out of the viewport
+        document.body.appendChild(clone); // Add clone to the body for rendering
+
+         // Remove max-height from the table container
+         const tableContainer = clone.querySelector('.table-container');
+         if (tableContainer) {
+             tableContainer.style.maxHeight = 'none'; // Remove the max-height restriction
+         }
+
+        // Capture the clone as a PDF
+        html2canvas(clone, {
+            scale: 2, // High resolution
+            useCORS: true,
+        }).then((canvas) => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            // Margins (in mm)
+            const margin = 15; // Adjust this for desired side margins
+
+            // Get dimensions
+            const imgData = canvas.toDataURL('image/png');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+
+            // Calculate the scaling ratio, accounting for margins
+            const maxContentWidth = pageWidth - margin * 2; // Width available after applying margins
+            const maxContentHeight = pageHeight - margin * 2; // Height available after applying margins
+            const ratio = Math.min(maxContentWidth / canvasWidth, maxContentHeight / canvasHeight);
+
+            const imgWidth = canvasWidth * ratio; // Scaled width
+            const imgHeight = canvasHeight * ratio; // Scaled height
+
+            // Apply the margins
+            const xOffset = margin; // Start after the left margin
+            const yOffset = margin; // Start after the top margin
+
+            pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+
+            // Open PDF in a new tab
+            const pdfUrl = pdf.output('bloburl');
+            window.open(pdfUrl, '_blank');
+
+            // Remove the temporary clone
+            document.body.removeChild(clone);
+        }).catch((err) => {
+            console.error('Error capturing content:', err);
+
+            // Ensure cleanup in case of error
+            document.body.removeChild(clone);
+        });
+    });
+</script>
+
+
 </section>
-
-
 
 {% endblock %}

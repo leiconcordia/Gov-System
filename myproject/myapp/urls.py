@@ -43,5 +43,6 @@ urlpatterns = [
     path('edit_sched/<int:schedule_id>/', views.edit_schedule, name='edit_sched'),
     path('delete_sched/<int:schedule_id>/', views.delete_schedule, name='delete_sched'),
 
-
+   
+    path('employee/<str:employee_id>/attendance/pdf/', views.generate_pdf, name='generate_pdf'),
 ]
