@@ -5,7 +5,8 @@
 {% block content %}
 
 <section class="home">
-    <p>Employee list</p>
+    <div class="navs d-flex align-items-center justify-content-between">
+    <p>Employee List</p>
  
     <!-- Search Bar -->
 <form method="GET" action="{% url 'employeelist' %}" class="search-parent">
@@ -13,6 +14,7 @@
   <button type="submit">Search</button>
   
 </form>
+</div>
 
 
 

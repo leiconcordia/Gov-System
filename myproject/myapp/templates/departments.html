@@ -9,13 +9,7 @@
 <section class="home">
     <p>Departments</p>
 
-    <form method="get" action="{% url 'departments' %}" class="parent-calendar">
-        <div>
-            <label for="date">Select Date:</label>
-            <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}" class="calendar">
-            <button type="submit">Fetch Data</button>
-        </div>
-    </form>
+    
     
     <script>
         // Get today's date in the format YYYY-MM-DD
@@ -40,21 +34,22 @@
     </style>
 
 
-    
-    <div class="topButtons">
-        <div style="display: flex; align-items: end; justify-content: start;margin-left: 60px;" >
+
+    <div class="topTableDep">
+       
                     <button type="button" class="btn btn-primary" 
                     data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
                     Add Department
                     </button>
-    </div>
 
-            <form id="filterRangeForm" class="ms-3" >
-               
-                <input type="number" min="1" id="startNumber" class="form-control d-inline-block" placeholder="Start #" style="width: 120px;" />
-                <input type="number" min="1" id="endNumber" class="form-control d-inline-block" placeholder="End #" style="width: 120px;" />
-                <button type="button" id="applyFilters" class="btn btn-primary ms-2">Apply Filters</button>
-            </form>
+                    <form method="get" action="{% url 'departments' %}" class="parent-calendar">
+                        <div>
+                            <label for="date">Select Date:</label>
+                            <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}" class="calendar">
+                            <button type="submit">Submit</button>
+                        </div>
+                    </form>
+ 
 
 </div>
 
@@ -89,33 +84,6 @@
 
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const rows = document.querySelectorAll('.departmentRow');  // Correct selector: .departmentRow
-        let selectedStatus = 'all'; // Default to show all statuses
-
-        // Apply filters based on range and status
-        function applyFilters() {
-            const startNumber = parseInt(document.getElementById('startNumber').value) || 1;
-            const endNumber = parseInt(document.getElementById('endNumber').value) || Number.MAX_SAFE_INTEGER;
-
-            rows.forEach((row, index) => {
-                const rowIndex = index + 1;  // 1-based index for row (instead of 0-based)
-                const rowStatus = row.getAttribute('data-status').trim().toLowerCase();  // Check the data-status attribute
-
-                // Check if row satisfies both the range and status filters
-                const inRange = rowIndex >= startNumber && rowIndex <= endNumber;
-                const matchesStatus = selectedStatus === 'all' || rowStatus === selectedStatus;
-
-                // Show or hide the row based on whether it matches both filters
-                row.style.display = (inRange && matchesStatus) ? '' : 'none';
-            });
-        }
-
-        // Trigger the filter logic when the "Apply Filters" button is clicked
-        document.getElementById('applyFilters').addEventListener('click', applyFilters);
-    });
-</script>
 
 
 

@@ -5,12 +5,23 @@
 {% block content %}
 
 <section class="home">
-    <p>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record</p>
-
-
-    <div style="display: flex; justify-content: end; align-items: end; margin-right: 69px; margin-bottom: 50px;">
-        <a href="{% url 'employeelist' %}" class="btn-close btn-close-white" disabled aria-label="Close"></a>
+    <div class="navs d-flex align-items-center justify-content-between">
+        <!-- Title Section -->
+        <div class="d-flex align-items-center">
+            <p>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record</p>
+        </div>
+        <div style="margin-right: 90px;">
+            <a href="{% url 'employeelist' %}" aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708"/>
+                </svg>
+            </a>
+      
     </div>
+    
+    </div>
+    
+<div class="topTable">
     <!-- Month and Year Selection -->
     <form method="GET" action="" class="parent-calendar-employee">
         
@@ -25,11 +36,33 @@
             margin-right: 5px;  /* Optional: Add some space above the input */
             
         }
+        #download-button {
+            display: flex;
+            align-items: center;
+        }
        
     </style>
 
 
-   
+
+    
+    
+    <button class="btn btn-outline-danger d-flex align-items-center justify-content-start" 
+    style="margin-left: 60px;" 
+    id="download-button">
+<svg xmlns="http://www.w3.org/2000/svg" 
+     width="16" 
+     height="16" 
+     fill="currentColor" 
+     class="bi bi-filetype-pdf me-2" 
+     viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+</svg>
+Download as PDF
+</button>
+
+</div>
+    
 
     <div class="table-container">
     <table class="table">
@@ -62,7 +95,7 @@
 
 
 
-<button id="download-button">Download as PDF</button>
+
 
 <!-- Hidden content for PDF generation -->
 <div id="pdf-content" style="display: none;">

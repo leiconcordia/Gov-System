@@ -471,9 +471,10 @@ button:hover {
 .search-parent{
   display: flex;
   justify-content: end;
-  
-  margin-right: 70px;
-  margin-bottom: 10px;  
+  align-items: center;
+  margin-right: 15px;
+  margin-top: 5px;
+   
 
 
 }
@@ -527,7 +528,8 @@ button:hover {
   justify-content: start;
   align-items: flex-end;
   margin-bottom: 0;
-  gap:70px;
+  margin-top: 50px;
+  gap:450px;
 }
 .topButtons .ms-3  {
   display: flex;
@@ -564,3 +566,31 @@ button:hover {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.navs{
+  display:flex;
+  align-items: start;
+  flex-direction:row;
+}
+
+.topTable{
+  display: flex;
+  justify-content: start;
+  align-items: flex-end;
+  margin-bottom: 0;
+  gap:390px;
+  margin-left: 60px;
+  margin-top: 50px;
+  margin-bottom: 15px;
+}
+
+.topTableDep{
+  display: flex;
+  justify-content: start;
+  align-items: flex-end;
+  margin-bottom: 0;
+  gap:446px;
+  margin-left: 60px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+
+}

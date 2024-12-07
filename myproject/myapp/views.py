@@ -429,7 +429,6 @@ def delete_employee(request, employee_id):
 
 def schedule_list(request):
     schedules = CustomSchedule.objects.all()
-    
     alert_message = None
     alert_icon = None
 
@@ -468,12 +467,37 @@ def schedule_list(request):
             alert_message = 'Please provide all required fields!'
             alert_icon = 'warning'
 
+        # Handle overtime duration update if form is submitted
+        if 'overtime_duration' in request.POST:
+            overtime_duration = int(request.POST.get('overtime_duration'))
+
+            if overtime_duration < 1:
+                alert_message = 'Overtime duration must be at least 1 hour.'
+                alert_icon = 'error'
+            else:
+                # Update the overtime setting or create a new one
+                overtime_setting = OvertimeSetting.objects.first()
+                if overtime_setting:
+                    overtime_setting.overtime_duration_hours = overtime_duration
+                    overtime_setting.save()
+                else:
+                    OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
+                
+                alert_message = f'Overtime duration set to {overtime_duration} hours.'
+                alert_icon = 'success'
+
+    # Fetch the current overtime setting (for display)
+    overtime_setting = OvertimeSetting.objects.first()
+    current_overtime_duration = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 hours
+
     # Render the schedule list with any alert messages
     return render(request, 'schedule_list.html', {
         'schedules': schedules,
         'alert_message': alert_message,
-        'alert_icon': alert_icon
+        'alert_icon': alert_icon,
+        'overtime_duration': current_overtime_duration,
     })
+
 
 
 
@@ -531,71 +555,30 @@ def delete_schedule(request, schedule_id):
 
     return render(request, 'confirm_delete.html', {'schedule': schedule})
 
+
+
+
+
 @login_required
 def admin_dashboard_view(request):
-    # Get today's date in Philippine timezone
+    # Get today's date
     today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
-
-    # # Fetch today's attendance records
-    # attendance_records = Attendance.objects.filter(date=today)
-    # Fetch non-absent employees
+    
     attendance_records = get_non_absent_employees()
     
     
-
-    # Fetch the current overtime setting
-    overtime_setting = OvertimeSetting.objects.first()
-    current_overtime_duration = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 hours
-
     print(f"Attendance records for today: {attendance_records}")
-
+    
     # Check if the attendance records contain any data
     if not attendance_records.exists():
         print("No attendance records found for today.")
     else:
         print(f"Found {attendance_records.count()} attendance records for today.")
-
-    # Handle overtime duration update if form is submitted
-    if request.method == 'POST':
-        # Get the new overtime duration from the form
-        new_overtime_duration = int(request.POST.get('overtime_duration'))
-
-        # Validate the input
-        if new_overtime_duration < 1:
-            return render(request, 'admin_dashboard.html', {
-                'attendance_records': attendance_records,
-                'overtime_duration': current_overtime_duration,
-                'error_message': 'Overtime duration must be at least 1 hour.'
-            })
-
-        # Update the overtime setting in the database
-        if overtime_setting:
-            overtime_setting.overtime_duration_hours = new_overtime_duration
-            overtime_setting.save()
-        else:
-            # Create a new overtime setting if one doesn't exist
-            OvertimeSetting.objects.create(overtime_duration_hours=new_overtime_duration)
-
-        # After updating, redirect with a success message
-        return render(request, 'admin_dashboard.html', {
-            'attendance_records': attendance_records,
-            'overtime_duration': new_overtime_duration,
-            'overtime_updated': True
-        })
-        
-
-    # Render the admin dashboard template with attendance records and overtime duration
     context = {
-        'attendance_records': attendance_records,
-        'overtime_duration': current_overtime_duration,
+        'attendance_records': attendance_records
     }
     
-    return render(request, 'admin_dashboard.html', context)  # Ensure return here!
-
-
-
-
-
+    return render(request, 'admin_dashboard.html', context)
 
 
 

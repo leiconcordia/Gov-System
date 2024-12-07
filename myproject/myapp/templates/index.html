@@ -40,7 +40,7 @@
 
       <div class="nav-header">
         <p class="logo"> ATTENDANCE</p>
-        <i class="bx bx-menu btn-menu"></i>
+        <i style="display:none;" class="bx bx-menu btn-menu"></i>
       </div>
       <ul class="nav-links">
         {% url 'admin_dashboard' as admin_dashboard_url %}
@@ -74,7 +74,7 @@
         <li class="{% if request.path == custom_url %}active{% endif %}">
           <a href="{{ custom_url }}">
               <i class="bx bx-edit"></i>
-              <span class="title">Schedule Events</span>
+              <span class="title">Custom Adjustments</span>
           </a>
           <span class="tooltip">Log out</span>
       </li>

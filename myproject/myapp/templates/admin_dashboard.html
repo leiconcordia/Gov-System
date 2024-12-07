@@ -67,33 +67,7 @@
 
 
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#overtimeModal" >
-    Change Overtime Duration
-</button>
 
-
-<!-- Modal -->
-<div class="modal fade" id="overtimeModal" tabindex="-1" aria-labelledby="overtimeModalLabel" aria-hidden="true" data-bs-backdrop="false">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="overtimeModalLabel">Current Overtime Duration: <strong>{{ overtime_duration }} hours</strong></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Form inside the modal for updating overtime duration -->
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="overtime_duration">Change Overtime Duration (in hours):</label>
-                        <input type="number" class="form-control" id="overtime_duration" name="overtime_duration" min="1" step="1" value="{{ overtime_duration }}" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block mt-3">Update Overtime Duration</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 </section>
