@@ -176,6 +176,83 @@
       }
     });
   </script>
+
+
+
+<!-- Already Checked-out In Modal -->
+<div class="modal fade" id="alreadyCheckedOutModal" tabindex="-1" aria-labelledby="alreadyCheckedOutModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="alreadyCheckedOutModalLabel">Already Log-out</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="alreadyCheckedOutModalBody">
+        <!-- This content will be dynamically updated -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const already_timed_out_message = "{{ already_timed_out_message|escapejs }}";
+    const employeeName = "{{ employee_name|escapejs }}"; // Pass this from the view if needed
+
+    if (already_timed_out_message) {
+      // Update the modal body with the alert message
+      document.getElementById('alreadyCheckedOutModalBody').textContent = already_timed_out_message;
+
+      // Show the modal
+      const alreadyCheckedOutModal = new bootstrap.Modal(document.getElementById('alreadyCheckedOutModal'));
+      alreadyCheckedOutModal.show();
+    }
+  });
+</script>
+
+
+{% comment %} For Absence Alert Modal {% endcomment %}
+<div class="modal fade" id="absenceAlertModal" tabindex="-1" aria-labelledby="absenceAlertModalLabel" aria-hidden="true" data-bs-backdrop="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="absenceAlertModalLabel">Log-in period has passed!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="absenceAlertModalBody">
+        <!-- This content will be dynamically updated -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const absenceAlertMessage = "{{ absence_alert_message|escapejs }}";
+    const employeeFullName = "{{ employee_name|escapejs }}"; // Pass this from the view.
+
+    if (absenceAlertMessage && employeeFullName) {
+      // Update modal content dynamically
+      const modalBody = document.getElementById('absenceAlertModalBody');
+      modalBody.textContent = `I'm sorry ${employeeFullName} but you're marked as absent`;
+
+      // Show the modal if the absence message is present
+      const absenceAlertModal = new bootstrap.Modal(document.getElementById('absenceAlertModal'));
+      absenceAlertModal.show();
+    }
+  });
+</script>
+
+
+
+
+
   
           {% comment %}  for employee not found {% endcomment %}
 

@@ -18,52 +18,7 @@ from datetime import datetime
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 import html 
-def generate_pdf(request, employee_id):
-    # Fetch employee by employee_id (which is a CharField)
-    employee = Employee.objects.get(employee_id=employee_id)
 
-    # Get the current month in 'YYYY-MM' format as the default
-    current_month = datetime.now().strftime('%Y-%m')
-
-    # Get the selected month from the request, use current_month as default
-    selected_month = request.GET.get('month', current_month)
-
-    # Fetch attendance records for the employee
-    attendance_records = Attendance.objects.filter(employee=employee)
-
-    # Filter attendance records if a month is selected
-    if selected_month:
-        try:
-            year, month = map(int, selected_month.split('-'))  # Unpack year and month
-            attendance_records = attendance_records.filter(
-                date__year=year,
-                date__month=month
-            )
-        except ValueError:
-            # Handle the error if the format is incorrect
-            attendance_records = Attendance.objects.filter(employee=employee)
-
-    # Render the HTML content from the template and pass the employee and attendance records
-    html = render_to_string('view_employee.html', {
-        'employee': employee,
-        'attendance_records': attendance_records,
-        'selected_month': selected_month,
-    })
-
-    # Create a PDF from the rendered HTML
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="{employee.first_name}_{employee.last_name}_attendance.pdf"'  # Open in a new tab
-
-    # Convert HTML to PDF
-    pisa_status = pisa.CreatePDF(html, dest=response)
-
-    # Check for errors
-    if pisa_status.err:
-        return HttpResponse('We had some errors <pre>' + html.escape(pisa_status.err) + '</pre>')
-
-    
-    response['Content-Disposition'] = 'inline; filename="file.pdf"'  # This will open in a new tab
-    return response
 
 def get_schedule(current_date):
     # Default time-in and time-out
@@ -188,11 +143,15 @@ def checkin(request):
                 attendance.arrival_status = 'ontime'
             elif current_time_dt < half_gap_time:
                 attendance.arrival_status = 'late'
+                
             else:
                 # If time-in period has passed and no check-in is recorded
-                
-                return HttpResponse("Time-in period has passed. You are marked absent.", status=400)
-            
+                attendance.arrival_status = 'absent'
+                attendance.save()
+                return render(request, 'checkin.html', {
+    'absence_alert_message': 'You are marked absent',
+    'employee_name': f"{employee.first_name} {employee.last_name}",
+})
 
 
             # Save time-in and prevent re-checkin
@@ -209,6 +168,12 @@ def checkin(request):
         if attendance.time_in is not None and current_time_dt < half_gap_time:
              return render(request, 'checkin.html', {
         'already_checked_in_message': 'You have already checked in for today.',
+        'employee_name': f"{employee.first_name} {employee.last_name}"
+    })
+             
+        if attendance.time_out is not None:
+            return render(request, 'checkin.html', {
+        'already_timed_out_message': 'You have already timed out for today.',
         'employee_name': f"{employee.first_name} {employee.last_name}"
     })
 
