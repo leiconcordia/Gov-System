@@ -424,6 +424,16 @@ def schedule_list(request):
     schedules = CustomSchedule.objects.all()
     alert_message = None
     alert_icon = None
+    today = date.today()
+    
+    # Check if there is a schedule for today
+    schedule_exists_today = CustomSchedule.objects.filter(date=today).exists()
+
+    # Check if attendance has been marked for today
+    attendance_exists_today = Attendance.objects.filter(date=today).exists()
+
+    # Determine button visibility
+    button_display = not (schedule_exists_today and attendance_exists_today)
 
     # Handle form submission for creating or updating a schedule
     if request.method == 'POST':
@@ -462,22 +472,26 @@ def schedule_list(request):
 
         # Handle overtime duration update if form is submitted
         if 'overtime_duration' in request.POST:
-            overtime_duration = int(request.POST.get('overtime_duration'))
+            try:
+                overtime_duration = int(request.POST.get('overtime_duration'))
 
-            if overtime_duration < 1:
-                alert_message = 'Overtime duration must be at least 1 hour.'
-                alert_icon = 'error'
-            else:
-                # Update the overtime setting or create a new one
-                overtime_setting = OvertimeSetting.objects.first()
-                if overtime_setting:
-                    overtime_setting.overtime_duration_hours = overtime_duration
-                    overtime_setting.save()
+                if overtime_duration < 1:
+                    alert_message = 'Overtime duration must be at least 1 hour.'
+                    alert_icon = 'error'
                 else:
-                    OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
-                
-                alert_message = f'Overtime duration set to {overtime_duration} hours.'
-                alert_icon = 'success'
+                    # Update the overtime setting or create a new one
+                    overtime_setting = OvertimeSetting.objects.first()
+                    if overtime_setting:
+                        overtime_setting.overtime_duration_hours = overtime_duration
+                        overtime_setting.save()
+                    else:
+                        OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
+                    
+                    alert_message = f'Overtime duration set to {overtime_duration} hours.'
+                    alert_icon = 'success'
+            except ValueError:
+                alert_message = 'Invalid overtime duration provided.'
+                alert_icon = 'error'
 
     # Fetch the current overtime setting (for display)
     overtime_setting = OvertimeSetting.objects.first()
@@ -489,6 +503,9 @@ def schedule_list(request):
         'alert_message': alert_message,
         'alert_icon': alert_icon,
         'overtime_duration': current_overtime_duration,
+        'button_display': button_display,
+        'today': today,
+        'attendance_exists_today': attendance_exists_today,
     })
 
 

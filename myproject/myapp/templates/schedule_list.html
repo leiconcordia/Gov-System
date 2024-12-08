@@ -59,9 +59,19 @@
                    
                         
                 
+                    {% if schedule.date == today and attendance_exists_today %}
+                        <!-- Hide the Edit button -->
+                    {% else %}
+                        <!-- Show the Edit button -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-{{ schedule.id }}">
-                            Edit 
+                            Edit
                         </button>
+                    {% endif %}
+               
+                
+
+
+                        
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ schedule.id }}">
                             Delete
                         </button>
