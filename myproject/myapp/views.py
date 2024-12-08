@@ -306,6 +306,34 @@ def employee_dashboard(request):
 
 
 
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_new_password = request.POST.get('confirm_new_password')
+        employee = Employee.objects.get(employee_id=request.session.get('employee_id'))
+
+        # Check if the current password matches
+        if not check_password(current_password, employee.password):
+            messages.warning(request, 'Current password is incorrect.')
+            return redirect('employee-dashboard')  # Redirect to the dashboard
+
+        # Check if the new passwords match
+        if new_password != confirm_new_password:
+            messages.warning(request, 'New passwords do not match.')
+            return redirect('employee-dashboard')  # Redirect to the dashboard
+
+        # Update the password
+        employee.password = make_password(new_password)
+        employee.save()
+
+        messages.success(request, 'Password changed successfully!')
+        return redirect('employee-dashboard')  # Redirect to the dashboard
+
+    # If the request method is not POST, render the dashboard (or handle accordingly)
+    return render(request, 'employee-dashboard.html')
+
+
 @login_required
 def employeelist(request):
     # Handle the signup process

@@ -124,14 +124,16 @@
 }
 
 #closeChatbot {
-    position: absolute;
-    top: 1px;
-    right: 5px;
+    display: flex;
+    justify-content: end; /* Aligns the button to the end horizontally */
+    align-items: center; /* Centers the button vertically within the container */
     font-size: 30px;
     background: transparent;
     border: none;
     cursor: pointer;
     color: #555;
+    padding:0%;
+    margin-right: 20px; /* Optional: Adds some spacing from the edge */
 }
 
 #closeChatbot:hover {

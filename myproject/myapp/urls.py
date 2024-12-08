@@ -16,7 +16,7 @@ urlpatterns = [
     path('departments/', views.departments, name='departments'),
     
 
-    
+    path('change-password/', views.change_password, name='change_password'),
     
   
     

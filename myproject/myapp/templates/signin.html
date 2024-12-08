@@ -152,11 +152,8 @@
                  let message = "Hi! I'm FAQ support. You can ask me questions by clicking the buttons below:";
                  let options = 
                  [
-                 "How can I check my attendance records?",
-                 "Can I see my attendance for future months?",
-                 "What happens if I need to check my attendance from a past month?",
-                 "How do I check my attendance for the current month?",
-                 "Can I edit my attendance records?",
+                 "I dont know my username and password",
+                 "I forgot my password",
                  "Goodbye"
                     ];
                  displayMessage(message, 'bot');
@@ -205,11 +202,9 @@
          
          function getResponse(input) {
           const responses = {
-            "How can I check my attendance records?": "You can view your attendance records for the current month and the previous months. Just select the month you'd like to view.",
-            "Can I see my attendance for future months?": "No, you can only view your attendance records for the current and past months.",
-            "What happens if I need to check my attendance from a past month?": "You can select the specific past month to view your attendance records for that period.",
-            "How do I check my attendance for the current month?": "Your current month's attendance will be displayed automatically when you log in. You can view your check-in and check-out times for each day.",
-            "Can I edit my attendance records?": "No, your attendance records are automatically tracked and cannot be edited manually. If there is an error, please contact HR.",
+            "I dont know my username and password": "Your default username is your last name followed by your Employee ID, separated by a dot (always in lowercase). Your default password is your first name. If your last name is Smith and your Employee ID is 12345, then your username will be smith.12345",
+            "I forgot my password": "If you forgot your password, dont worry! contact admin and the admin will change it for you.",
+            
             "Goodbye": "Goodbye! Have a great day ahead!"
           }
           

@@ -253,14 +253,14 @@
     
         <!-- JavaScript -->
         <script>
-   
-         document.getElementById('closeChatbot').addEventListener('click', function () {
-           // Hide the chatbot container
-           document.getElementById('chatbotContainer').style.display = 'none';
-           // Optionally, clear the chatbox and quick replies when closing
-           document.getElementById('chatbox').innerHTML = '';
-           document.getElementById('quickReplies').innerHTML = '';
-       });
+          document.getElementById('closeChatbot').addEventListener('click', function () {
+            // Hide the chatbot container
+            document.getElementById('chatbotContainer').style.display = 'none';
+            // Optionally, clear the chatbox and quick replies when closing
+            document.getElementById('chatbox').innerHTML = '';
+            document.getElementById('quickReplies').innerHTML = '';
+        });
+    
    
        
    
@@ -277,8 +277,7 @@
             "What are the default time-in and time-out hours?",
             "What time can I check out?",
             "When is overtime considered?",
-            "What happen when custom schedule is applied?",
-            "What happens when there is a custom schedule?",
+            "What happens when a custom schedule is applied?",
             "Goodbye"
                   ];
                displayMessage(message, 'bot');
@@ -331,7 +330,7 @@
             "How does this system work?": "You can use your employee ID or provide your first and last name to check in.",
             "What are the default time-in and time-out hours?": "The default hours are 8:10 AM for time-in and 6:10 PM for time-out.",
             "What time can I check out?": "If there are no events scheduled, you can check out at 1:10 AM, which is halfway between the time-in and time-out periods.",
-            "When is overtime considered?": "Overtime is counted as any time worked beyond 3 hours after the checkout time.",
+            "When is overtime considered?": "The default overtime is counted as any time worked beyond 3 hours after the checkout time.",
             "What happens when a custom schedule is applied?": "You can set custom time-in and time-out hours for specific days or weeks. Once set, these times will override the default hours. You can check out after the half-gap time, which is the midpoint between your scheduled time-in and time-out.",
             "Goodbye": "Goodbye! Have a great day ahead!"
           
