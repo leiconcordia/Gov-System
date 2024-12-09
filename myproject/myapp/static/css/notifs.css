@@ -1,0 +1,51 @@
+.notif-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 35px;
+    z-index: 998; /* Ensure it stays above other content */
+    background-color: #000000;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Notification container */
+  .notif-container {
+    position: fixed;
+    bottom: 150px;
+    right: 20px;
+    z-index: 1049;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none; /* Initially hidden */
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .notif-header {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    background-color: #f8f9fa;
+  }
+
+  .notif-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .notif-item:last-child {
+    border-bottom: none;
+  }
+
+  .notif-item:hover {
+    background-color: #0056b3;
+  }

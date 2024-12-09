@@ -50,7 +50,7 @@ class Attendance(models.Model):
         unique_together = ('employee', 'date')  # Ensure one record per employee per day
 
     def __str__(self):
-        return f"{self.employee} - {self.date} - Arrival: {self.arrival_status}, Departure: {self.timeout_status}"
+        return f"{self.employee} - {self.date} - Log-in: {self.arrival_status}, Log-out: {self.timeout_status}"
 
 
 class CustomSchedule(models.Model):
@@ -60,10 +60,10 @@ class CustomSchedule(models.Model):
     reason = models.TextField(blank=True)        
 
     def __str__(self):
-        return f"Schedule for {self.date}: In at {self.time_in}, Out at {self.time_out} ({self.reason})"
+        return f" Created Schedule for {self.date}: In at {self.time_in}, Out at {self.time_out} ({self.reason})"
     
 class OvertimeSetting(models.Model):
     overtime_duration_hours = models.FloatField(default=3)  # default 3 hours
 
     def __str__(self):
-        return f"Overtime Duration: {self.overtime_duration_hours} hours"
+        return f"Updated Overtime Duration To: {self.overtime_duration_hours} hours"

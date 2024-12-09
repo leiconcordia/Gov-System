@@ -2,7 +2,7 @@
 #toggleChatbot {
     z-index: 999;
     position: fixed;
-    bottom: 50px;
+    bottom: 18px;
     right: 35px;
     background: #000000;
     color: white;

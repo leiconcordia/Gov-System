@@ -15,9 +15,10 @@ from django.contrib.auth.hashers import check_password
 from datetime import date
 from datetime import timedelta
 from datetime import datetime
-from django.template.loader import render_to_string
-from xhtml2pdf import pisa
-import html 
+from django.contrib.admin.models import LogEntry
+from django.contrib.contenttypes.models import ContentType
+from django.http import JsonResponse
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 
 
 def get_schedule(current_date):
@@ -39,7 +40,16 @@ def get_schedule(current_date):
     
     return time_in, time_out
 
+def log_action(user, action_flag, obj, change_message):
 
+    LogEntry.objects.log_action(
+        user_id=user.id,
+        content_type_id=ContentType.objects.get_for_model(obj).id,
+        object_id=obj.id,
+        object_repr=str(obj),
+        action_flag=action_flag,
+        change_message=change_message
+    )
 
 # def mark_absent_for_missing_checkins(current_date):
 #     # Get the current time in Philippine timezone
@@ -302,6 +312,7 @@ def change_password(request):
 @login_required
 def employeelist(request):
     # Handle the signup process
+    
     if request.method == 'POST':
         
         # Extract data from the form
@@ -325,6 +336,13 @@ def employeelist(request):
         
         # Save the employee to the database
         employee.save()
+        log_action(
+            request.user,
+            CHANGE,  # Use DELETION for delete actions
+            employee,  # Log the actual employee object
+            f'Employee "{employee.first_name} {employee.last_name}" created successfully.'
+        )
+        
 
         # Optionally, you could return a success message or redirect
         # return redirect('employeelist')
@@ -345,12 +363,14 @@ def employeelist(request):
     
     context = {
         "employees": employees,
-        "departments": departments
+        "departments": departments,
+       
     }
     return render(request, 'employeelist.html', context)
 
 
 def edit_employee(request, employee_id):
+   
     # Retrieve the employee to edit
     employee = Employee.objects.get(id=employee_id)
     
@@ -376,6 +396,12 @@ def edit_employee(request, employee_id):
             
             # Save the updated employee instance
             employee.save()
+            log_action(
+            request.user,
+            CHANGE,  # Use DELETION for delete actions
+            employee,  # Log the actual employee object
+            f'Employee "{employee.first_name} {employee.last_name}" edited successfully.'
+    )
             
             # Redirect after saving the employee
            
@@ -385,26 +411,33 @@ def edit_employee(request, employee_id):
             return render(request, 'employeelist.html', {
                 'employee': employee, 
                 'departments': Department.objects.all(),
-                'error_message': "Department does not exist."
+                'error_message': "Department does not exist.",
+                
             })
     
     # If it's a GET request, render the form with the employee's existing data
     return render(request, 'employeelist.html', {
     'employees': Employee.objects.all(),  # Pass updated employee list
     'departments': Department.objects.all(),
-    'success_message': "Employee updated successfully."
+   
 })
 
     
-    
+
 @login_required
 def delete_employee(request, employee_id):
     # Ensure the employee exists
     employee = Employee.objects.get(pk=employee_id)  # This is correct
 
+
     # Delete the employee
     employee.delete()
-    
+    log_action(
+        request.user,
+        CHANGE,  # Use DELETION for delete actions
+        employee,  # Log the actual employee object
+        f'Employee "{employee.first_name} {employee.last_name}" deleted successfully.'
+    )
     # Prepare the alert message
     alert_message = f'Employee "{employee.first_name} {employee.last_name}" deleted successfully!'
     
@@ -452,13 +485,17 @@ def schedule_list(request):
                     date=selected_date,
                     defaults={'time_in': time_in, 'time_out': time_out, 'reason': reason}
                 )
-                
-                # Dynamically include the selected_date and reason in the alert message
-                alert_message = (
-                    f'Custom schedule for {reason} set successfully on {selected_date}!'
-                    if created
-                    else f'Custom schedule for "{reason}" updated successfully on {selected_date}!'
-                )
+                  
+                # Log the action after creating or updating
+                if created:
+                    log_action(
+                        request.user,
+                        ADDITION,
+                        custom_schedule,
+                        f'Created custom schedule for "{reason}" on {selected_date}.'
+                        
+                    )
+                    alert_message = f'Custom schedule for "{reason}" set successfully on {selected_date}!'
                 alert_icon = 'success'
             except ValueError as ve:
                 alert_message = f'Error parsing time: {str(ve)}'
@@ -482,8 +519,10 @@ def schedule_list(request):
                     # Update the overtime setting or create a new one
                     overtime_setting = OvertimeSetting.objects.first()
                     if overtime_setting:
+                        
                         overtime_setting.overtime_duration_hours = overtime_duration
                         overtime_setting.save()
+                        log_action(request.user, CHANGE, overtime_setting, f'Updated overtime duration from {overtime_setting.overtime_duration_hours} to {overtime_duration} hours.')
                     else:
                         OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
                     
@@ -532,6 +571,12 @@ def edit_schedule(request, schedule_id):
                 schedule.time_out = time_out
                 schedule.reason = reason
                 schedule.save()
+                log_action(
+                    request.user,
+                    CHANGE,
+                    schedule,
+                    
+                )
 
                 return redirect('schedule_list')  # Redirect to the schedule list after editing
             except ValueError as ve:
@@ -561,10 +606,41 @@ def delete_schedule(request, schedule_id):
 
     if request.method == 'POST':
         schedule.delete()
+         # Log the deletion action
+        log_action(
+            request.user,
+            CHANGE,  # Use CHANGE for deletion in this context
+            schedule,
+            f'Deleted custom schedule.'
+        )
         return redirect('schedule_list')  # Redirect to the schedule list after deletion
 
     return render(request, 'confirm_delete.html', {'schedule': schedule})
 
+
+
+
+
+# @login_required
+# def admin_dashboard_view(request):
+#     # Get today's date
+#     today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
+    
+#     attendance_records = get_non_absent_employees()
+    
+    
+#     print(f"Attendance records for today: {attendance_records}")
+    
+#     # Check if the attendance records contain any data
+#     if not attendance_records.exists():
+#         print("No attendance records found for today.")
+#     else:
+#         print(f"Found {attendance_records.count()} attendance records for today.")
+#     context = {
+#         'attendance_records': attendance_records
+#     }
+    
+#     return render(request, 'admin_dashboard.html', context)
 
 
 
@@ -574,8 +650,8 @@ def admin_dashboard_view(request):
     # Get today's date
     today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
     
+    # Fetch attendance records
     attendance_records = get_non_absent_employees()
-    
     
     print(f"Attendance records for today: {attendance_records}")
     
@@ -584,14 +660,23 @@ def admin_dashboard_view(request):
         print("No attendance records found for today.")
     else:
         print(f"Found {attendance_records.count()} attendance records for today.")
+    
+    # Get the superuser (replace with your superuser's username)
+    superuser = User.objects.get(username='lei')  # Replace with your superuser's username
+    print(superuser)
+    
+    # Get all log entries for the superuser in the last 24 hours
+    recent_logs = LogEntry.objects.filter(user=superuser).order_by('-action_time')
+    
+    print(recent_logs)
+    
+    # Prepare the context
     context = {
-        'attendance_records': attendance_records
+        'attendance_records': attendance_records,
+        'recent_logs': recent_logs,
     }
     
     return render(request, 'admin_dashboard.html', context)
-
-
-
 
 
 def logout_view(request):
@@ -613,7 +698,7 @@ def login_view(request):
             return redirect('admin_dashboard')
         else:
             print("Login failed")  # Debugging
-            messages.warning(request, "Try again")
+            messages.warning(request, "Invalid username or password")
             return redirect('login')
     
     if request.user.is_authenticated:
