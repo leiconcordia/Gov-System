@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance System</title>
+    <title>Ormoc Government Attendance System</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/outside.css' %}">
     <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
@@ -24,7 +24,7 @@
         
       <form action="{% url 'checkin_page' %}" id="checkin-form" method="POST">
           {% csrf_token %}
-          <label for="" style="position: absolute; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; color: white; font-size: 30px; margin-top: -60px; margin-left: 75px; font-weight: bold">Employee Time Log In </label>
+          <label for="" style="position: absolute; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; color: white; font-size: 30px; margin-top: -60px; margin-left: 75px; font-weight: bold">Log Employee Attendance </label>
           <input  type="text" id="employee-name" placeholder="Enter Employee ID/Name" name="employee_input" required>
           <button type="submit" id="logButton">{{ button_text }}</button>
       </form>

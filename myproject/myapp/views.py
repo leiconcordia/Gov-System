@@ -118,6 +118,8 @@ def checkin(request):
                 return render(request, 'checkin.html', {
     'absence_alert_message': 'You are marked absent',
     'employee_name': f"{employee.first_name} {employee.last_name}",
+    'button_text': button_text,
+    'half_gap_time': half_gap_time_str,  # Pass half_gap_time to the template
 })
 
 
@@ -127,6 +129,8 @@ def checkin(request):
             return render(request, 'checkin.html', {
     'alert_message': 'Attendance marked successfully!',
     'employee_name': f"{employee.first_name} {employee.last_name}",
+    'button_text': button_text,
+    'half_gap_time': half_gap_time_str,  # Pass half_gap_time to the template
     
 })
 
@@ -136,12 +140,14 @@ def checkin(request):
              return render(request, 'checkin.html', {
         'already_checked_in_message': 'You have already checked in for today.',
         'employee_name': f"{employee.first_name} {employee.last_name}"
+        
     })
              
         if attendance.time_out is not None:
             return render(request, 'checkin.html', {
         'already_timed_out_message': 'You have already timed out for today.',
         'employee_name': f"{employee.first_name} {employee.last_name}"
+       
     })
 
         # Time-out logic
@@ -163,6 +169,8 @@ def checkin(request):
             return render(request, 'checkin.html', {
         'timeout_alert_message': 'Time-out marked successfully!',
         'employee_name': f"{employee.first_name} {employee.last_name}",
+        'button_text': button_text,
+        'half_gap_time': half_gap_time_str,  # Pass half_gap_time to the template
     })
     # Render the checkin page if no form has been submitted
     return render(request, 'checkin.html', {
