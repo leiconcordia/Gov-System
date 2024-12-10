@@ -119,18 +119,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             {% for message in messages %}
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Deleted Successfully',
-                    text: '{{ message|escapejs }}',
-                    showCloseButton: true,
-                    confirmButtonText: 'OK'
-                });
+                {% if message.tags == 'success' %}
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: '{{ message|escapejs }}',
+                        showCloseButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                {% elif message.tags == 'error' %}
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: '{{ message|escapejs }}',
+                        showCloseButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                {% endif %}
             {% endfor %}
         });
     </script>
 {% endif %}
-                        
+     
                         
                     </div>
                 </td>

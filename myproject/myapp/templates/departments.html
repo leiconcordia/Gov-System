@@ -11,19 +11,7 @@
 
     
     
-    <script>
-        // Get today's date in the format YYYY-MM-DD
-        const today = new Date().toISOString().split("T")[0];
-        const dateInput = document.getElementById("date");
-        
-        // Set the max attribute to disable future dates
-        dateInput.setAttribute("max", today);
-        
-        // Set today's date as the default value if no other date is set
-        if (!dateInput.value) {
-            dateInput.value = today;
-        }
-    </script>
+
 
     <style>
         .date-input {
@@ -45,12 +33,34 @@
                     <form method="get" action="{% url 'departments' %}" class="parent-calendar">
                         <div>
                             <label for="date">Select Date:</label>
-                            <input type="date" id="date" name="date" class="date-input" value="{{ default_date }}" class="calendar">
+                            <input type="date" id="date" name="date" class="date-input" value="{{ selected_date }}" required>
                             <button type="submit">Submit</button>
                         </div>
                     </form>
- 
-
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Get today's date in YYYY-MM-DD format
+                            const today = new Date().toISOString().split('T')[0];
+                    
+                            // Get the date input field
+                            const dateInput = document.getElementById('date');
+                            
+                            // Check if the selected date exists in the template context
+                            const selectedDate = "{{ selected_date }}";
+                    
+                            // If there's a selected date, set it as the value
+                            if (selectedDate) {
+                                dateInput.value = selectedDate;
+                            } else {
+                                dateInput.value = today;  // Default to today's date if not selected
+                            }
+                    
+                            // Set the max attribute to today to avoid future dates being selected
+                            dateInput.max = today;
+                        });
+                    </script>
+                    
+                    
 </div>
 
 <div class="table-container">
@@ -121,5 +131,22 @@
 
 
 </section>
+
+{% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '{{ message|escapejs }}',
+                    showCloseButton: true,
+                    confirmButtonText: 'OK'
+                });
+            {% endfor %}
+        });
+    </script>
+{% endif %}
+               
 
 {% endblock %}

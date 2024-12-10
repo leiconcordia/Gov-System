@@ -145,27 +145,26 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="signupModalLabel">Add Custom attendance</h5>
+                <h5 class="modal-title" id="signupModalLabel">Add Custom Attendance</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST">
+                <form id="customAttendanceForm" method="POST">
                     {% csrf_token %}
                     <label for="selected_date">Select Date:</label>
                     <input type="date" name="selected_date" id="selected_date" required>
         
                     <label for="custom_timein">Custom time-in (HH:MM):</label>
-                    <input type="time" name="custom_timein" required>
+                    <input type="time" name="custom_timein" id="custom_timein" required>
                     
-                    <label for="custom_timeout">Custom Timeout (HH:MM):</label>
-                    <input type="time" name="custom_timeout" required>
+                    <label for="custom_timeout">Custom Time-out (HH:MM):</label>
+                    <input type="time" name="custom_timeout" id="custom_timeout" required>
                             
                     <label for="reason">Event name:</label>
-                    <input name="reason" placeholder="Enter event for custom attendance"></input>
+                    <input name="reason" placeholder="Enter event for custom attendance" required>
                     
-                   
                     <div class="modal-footer">
-                        <button type="submit">Set event</button>
+                        <button type="submit">Set Event</button>
                     </div>
                 </form>
             </div>
@@ -173,6 +172,45 @@
     </div>
 </div>
 
+<script>
+    document.getElementById('customAttendanceForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent form submission to handle validation first
+
+        const selectedDate = document.getElementById('selected_date').value;
+        const customTimeIn = document.getElementById('custom_timein').value;
+        const customTimeOut = document.getElementById('custom_timeout').value;
+
+        if (!selectedDate || !customTimeIn || !customTimeOut) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        // Convert the selected date and time values to Date objects for comparison
+        const selectedDateTimeIn = new Date(selectedDate + 'T' + customTimeIn);
+        const selectedDateTimeOut = new Date(selectedDate + 'T' + customTimeOut);
+        
+        // Ensure that the time-in is not later than time-out
+        if (selectedDateTimeIn >= selectedDateTimeOut) {
+            alert("Time-in cannot exceed Time-out.");
+            return;
+        }
+
+        // Ensure time-in and time-out are within the selected date
+        const currentDate = new Date();
+        if (selectedDateTimeIn.toDateString() !== currentDate.toDateString()) {
+            alert("Time-in must be within the selected date.");
+            return;
+        }
+
+        if (selectedDateTimeOut.toDateString() !== currentDate.toDateString()) {
+            alert("Time-out must be within the selected date.");
+            return;
+        }
+
+        // If all validations pass, submit the form
+        this.submit();
+    });
+</script>
 
 
 {% if alert_message and alert_icon %}

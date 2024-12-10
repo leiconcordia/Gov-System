@@ -19,7 +19,7 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
-
+from django.utils.timezone import now
 
 def get_schedule(current_date):
     # Default time-in and time-out
@@ -50,49 +50,6 @@ def log_action(user, action_flag, obj, change_message):
         action_flag=action_flag,
         change_message=change_message
     )
-
-# def mark_absent_for_missing_checkins(current_date):
-#     # Get the current time in Philippine timezone
-#     now_utc = timezone.now()
-#     philippine_tz = pytz.timezone('Asia/Manila')
-#     now_philippine = now_utc.astimezone(philippine_tz)
-#     current_time = now_philippine.time()
-
-#     # Print current time for debugging
-#     print(f"Current Time: {current_time}")
-
-#     # Fetch the time-in and time-out for today
-#     time_in, time_out = get_schedule(current_date)
-#     time_in_dt = timezone.datetime.combine(current_date, time_in)
-#     time_out_dt = timezone.datetime.combine(current_date, time_out)
-
-#     # Calculate the half-gap time (e.g., 9:30 AM if time_in is 9:00 AM)
-#     gap_time = time_out_dt - time_in_dt
-#     half_gap_time = time_in_dt + gap_time / 2  # Midway point between time_in and time_out
-
-#     # Print half_gap_time for debugging
-#     print(f"Half Gap Time: {half_gap_time.time()}")
-
-#     # Only proceed if the current time is after the half-gap time (after check-in period)
-#     if current_time >= half_gap_time.time():
-#         print("Current time is after the half-gap time. Checking absenteeism...")
-
-#         # Get all employees or filter as needed
-#         employees = Employee.objects.all()
-
-#         for employee in employees:
-#             # Get the attendance record for the employee
-#             try:
-#                 attendance = Attendance.objects.get(employee=employee, date=current_date)
-#                 # If the employee hasn't checked in (no time_in), mark them as absent
-#                 if attendance.time_in is None:
-#                     attendance.arrival_status = 'absent'
-#                     attendance.save()
-#                     print(f"Employee {employee.first_name} {employee.last_name} marked absent.")
-#             except Attendance.DoesNotExist:
-#                 print(f"No attendance record found for {employee.first_name} {employee.last_name}.")
-#     else:
-#         print(f"The time is before the half-gap time: {half_gap_time.time()}. Absenteeism will not be checked.")
 
 
 
@@ -323,24 +280,27 @@ def employeelist(request):
         password = request.POST['password']
         department_id = request.POST['department_name']
         
-
-        # Create a new Employee instance with hashed password
-        employee = Employee(
-            employee_id=employee_id,
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
-            password=make_password(password),
-            department_name_id=department_id
-        )
+        if Employee.objects.filter(employee_id=employee_id).exists():
+            messages.error(request, f'Employee ID "{employee_id}" is already taken. Please use a unique ID.')
         
-        # Save the employee to the database
-        employee.save()
-        log_action(
-            request.user,
-            CHANGE,  # Use DELETION for delete actions
-            employee,  # Log the actual employee object
-            f'Employee "{employee.first_name} {employee.last_name}" created successfully.'
+        else:
+        # Create a new Employee instance with hashed password
+            employee = Employee(
+                employee_id=employee_id,
+                first_name=first_name,
+                last_name=last_name,
+                username=username,
+                password=make_password(password),
+                department_name_id=department_id
+            )
+            
+            # Save the employee to the database
+            employee.save()
+            log_action(
+                request.user,
+                CHANGE,  # Use DELETION for delete actions
+                employee,  # Log the actual employee object
+                f'Employee "{employee.first_name} {employee.last_name}" created successfully.'
         )
         
 
@@ -400,7 +360,7 @@ def edit_employee(request, employee_id):
             request.user,
             CHANGE,  # Use DELETION for delete actions
             employee,  # Log the actual employee object
-            f'Employee "{employee.first_name} {employee.last_name}" edited successfully.'
+            f'Employee "{employee.first_name} {employee.last_name}" has been edited.'
     )
             
             # Redirect after saving the employee
@@ -436,7 +396,7 @@ def delete_employee(request, employee_id):
         request.user,
         CHANGE,  # Use DELETION for delete actions
         employee,  # Log the actual employee object
-        f'Employee "{employee.first_name} {employee.last_name}" deleted successfully.'
+        f'Employee "{employee.first_name} {employee.last_name}" deleted.'
     )
     # Prepare the alert message
     alert_message = f'Employee "{employee.first_name} {employee.last_name}" deleted successfully!'
@@ -492,7 +452,7 @@ def schedule_list(request):
                         request.user,
                         ADDITION,
                         custom_schedule,
-                        f'Created custom schedule for "{reason}" on {selected_date}.'
+                        f'Created an event for "{reason}" on {selected_date}.'
                         
                     )
                     alert_message = f'Custom schedule for "{reason}" set successfully on {selected_date}!'
@@ -520,9 +480,12 @@ def schedule_list(request):
                     overtime_setting = OvertimeSetting.objects.first()
                     if overtime_setting:
                         
+                        # Capture the current overtime duration before updating
+                        current_overtime_duration = overtime_setting.overtime_duration_hours
+                        
                         overtime_setting.overtime_duration_hours = overtime_duration
                         overtime_setting.save()
-                        log_action(request.user, CHANGE, overtime_setting, f'Updated overtime duration from {overtime_setting.overtime_duration_hours} to {overtime_duration} hours.')
+                        log_action(request.user, CHANGE, overtime_setting, f'Updated overtime duration from {current_overtime_duration} to {overtime_duration} hours.')
                     else:
                         OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
                     
@@ -575,7 +538,7 @@ def edit_schedule(request, schedule_id):
                     request.user,
                     CHANGE,
                     schedule,
-                    
+                    f'An event named "{reason}" in {selected_date} has been edited.'
                 )
 
                 return redirect('schedule_list')  # Redirect to the schedule list after editing
@@ -611,7 +574,7 @@ def delete_schedule(request, schedule_id):
             request.user,
             CHANGE,  # Use CHANGE for deletion in this context
             schedule,
-            f'Deleted custom schedule.'
+            f'Event "{schedule}" is deleted.'
         )
         return redirect('schedule_list')  # Redirect to the schedule list after deletion
 
@@ -757,9 +720,16 @@ def view_employee(request, employee_id):
 
 
 def get_selected_date(request):
-    date_str = request.GET.get('date', timezone.now().date().isoformat())
-    return timezone.datetime.fromisoformat(date_str).date()
-
+    date_str = request.GET.get('date', '')  # Get the date from query parameters
+    if date_str:
+        try:
+            # Attempt to parse the date
+            return timezone.datetime.fromisoformat(date_str).date()
+        except ValueError:
+            # If parsing fails, log the error and fall back to the current date
+            return now().date()
+    # If no date provided, default to today's date
+    return now().date()
 
 @login_required
 def departments(request):
@@ -767,7 +737,7 @@ def departments(request):
 
     # Ensure that the selected date is valid (if necessary)
     if not selected_date:
-        selected_date = timezone.now().date()  # Import timezone if you use it
+        selected_date = now().date()  # Import timezone if you use it
 
     # Query departments with attendance counts
     departments = Department.objects.annotate(
@@ -779,7 +749,8 @@ def departments(request):
         
     context = {
         "departments": departments,
-        "default_date": selected_date,
+        "selected_date": selected_date.isoformat(),  # Ensure the selected date is passed as a string in YYYY-MM-DD format
+        "today": timezone.now().date().isoformat()
     }
     
     return render(request, 'departments.html', context)
@@ -788,15 +759,33 @@ def departments(request):
 
 def add_department(request):
     if request.method == 'POST':
-        department_name = request.POST.get('department_name')
+        department_name = request.POST.get('department_name', '').strip()  # Ensure the name is stripped of leading/trailing spaces
         if department_name:
-            Department.objects.create(name=department_name)
-            messages.success(request, 'Department added successfully!')
-            return redirect('departments')  # Redirect to the departments list or desired page
+            try:
+                # Create a new department
+                new_department = Department.objects.create(name=department_name)
+
+                # Log the action
+                log_action(
+                    request.user,
+                    ADDITION,  
+                    new_department,  
+                    f'New department "{new_department.name}" created.'
+                )
+
+                # Display a success message
+                messages.success(request, 'Department created successfully.')
+                return redirect('departments')  # Redirect to the departments list or desired page
+
+            except Exception as e:
+                # Handle any errors during creation
+                messages.error(request, f'Error creating department: {e}')
         else:
+            # Handle empty input
             messages.error(request, 'Department name cannot be empty.')
 
-    return render(request, 'add_department.html')  # Render the form template
+    # Render the form template if GET request or an error occurs
+    return render(request, 'departments.html')
 
 
 

@@ -82,7 +82,7 @@
             {% for log in recent_logs %}
                 <div class="notif-item">
                   
-                    {{ log.get_action_display }}: {{ log.object_repr }} - {{ log.action_time }}
+                    {{ log.change_message }} - {{ log.action_time }}
                 </div>
             {% endfor %}
         {% else %}

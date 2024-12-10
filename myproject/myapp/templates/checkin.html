@@ -26,7 +26,7 @@
           {% csrf_token %}
           <label for="" style="position: absolute; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; color: white; font-size: 30px; margin-top: -60px; margin-left: 75px; font-weight: bold">Employee Time Log In </label>
           <input  type="text" id="employee-name" placeholder="Enter Employee ID/Name" name="employee_input" required>
-          <button type="submit" id="logButton">{{ button_text|default:'Log attendance' }}</button>
+          <button type="submit" id="logButton">{{ button_text }}</button>
       </form>
       
      
@@ -39,28 +39,33 @@
    
 <!-- Pass the half_gap_time to JavaScript -->
 <script>
-  const halfGapTime = "{{ half_gap_time }}";  // Get half_gap_time from Python
-  const logButton = document.getElementById("logButton");
+  document.addEventListener('DOMContentLoaded', function() {
+      const halfGapTime = "{{ half_gap_time }}";  // Get half_gap_time from Python
+      console.log("Half Gap Time:", halfGapTime);  // Debugging line
 
-  // Function to check if half_gap_time has passed
-  function checkHalfGapTime() {
-      const now = new Date();
-      const [hour, minute] = halfGapTime.split(":");
-      const halfGapDate = new Date();
-      halfGapDate.setHours(hour, minute, 0, 0);  // Set the half_gap_time
+      const logButton = document.getElementById("logButton");
 
-      // If the current time is after half_gap_time, change the button text to 'Time Out'
-      if (now >= halfGapDate) {
-          logButton.textContent = 'Log out';
-          console.log("Button text changed to 'Time Out'");
-      } else {
-          logButton.textContent = 'Log in';
+      // Function to check if half_gap_time has passed
+      function checkHalfGapTime() {
+          const now = new Date();
+          const [hour, minute] = halfGapTime.split(":");
+          const halfGapDate = new Date();
+          halfGapDate.setHours(hour, minute, 0, 0);  // Set the half_gap_time
+
+          // If the current time is after half_gap_time, change the button text to 'Time Out'
+          if (now >= halfGapDate) {
+              logButton.textContent = 'Log out';
+              console.log("Button text changed to 'Log out'");  // Debugging line
+          } else {
+              logButton.textContent = 'Log in';
+          }
       }
-  }
 
-  // Run the check when the page loads
-  checkHalfGapTime();
+      // Run the check when the page loads
+      checkHalfGapTime();
+  });
 </script>
+
     
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="false">
             <div class="modal-dialog">

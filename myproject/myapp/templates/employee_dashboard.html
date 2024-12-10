@@ -31,7 +31,7 @@
         }
     </style>
 
-    {% comment %} <script>
+    <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Get the current date
             const today = new Date();
@@ -40,15 +40,24 @@
             const currentYear = today.getFullYear();
             const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
             const currentMonthYear = `${currentYear}-${currentMonth}`;
-    
-            // Set the input value to the current month
+            
+            // Get the month input field
             const monthInput = document.getElementById("month");
-            monthInput.value = currentMonthYear; // Set the current month as the value
+            
+            // Check if the selected month exists in the template context
+            const selectedMonth = "{{ selected_month }}";
+            
+            // If there's a selected month, set it as the value
+            if (selectedMonth) {
+                monthInput.value = selectedMonth;
+            } else {
+                monthInput.value = currentMonthYear; // Default to the current month if not selected
+            }
     
             // Set the max attribute to the current month to disable future months
             monthInput.setAttribute("max", currentMonthYear);
         });
-    </script> {% endcomment %}
+    </script>
     
     
     <button 
