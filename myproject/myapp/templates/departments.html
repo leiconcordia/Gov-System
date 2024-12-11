@@ -37,29 +37,41 @@
                             <button type="submit">Submit</button>
                         </div>
                     </form>
+
+
+                    <script src="https://cdn.jsdelivr.net/npm/luxon@3.2.0/build/global/luxon.min.js"></script>
+
                     <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            // Get today's date in YYYY-MM-DD format
-                            const today = new Date().toISOString().split('T')[0];
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const { DateTime } = luxon;
                     
-                            // Get the date input field
-                            const dateInput = document.getElementById('date');
-                            
-                            // Check if the selected date exists in the template context
-                            const selectedDate = "{{ selected_date }}";
+                        // Get today's date in Manila timezone
+                        const today = DateTime.now().setZone('Asia/Manila').toISODate();
+                        console.log("Today's date in Manila timezone:", today);
                     
-                            // If there's a selected date, set it as the value
-                            if (selectedDate) {
-                                dateInput.value = selectedDate;
-                            } else {
-                                dateInput.value = today;  // Default to today's date if not selected
-                            }
+                        // Get the selected date from the server (ensure it has timezone info)
+                        const selectedDate = "{{ selected_date }}";  // e.g., "2024-12-11T00:00:00+08:00"
+                        console.log("Selected date from server:", selectedDate);
                     
-                            // Set the max attribute to today to avoid future dates being selected
-                            dateInput.max = today;
-                        });
+                        // Get the date input field
+                        const dateInput = document.getElementById('date');
+                    
+                        // Convert the selected date to Manila timezone if necessary
+                        if (selectedDate) {
+                            const selectedDateManila = DateTime.fromISO(selectedDate).setZone('Asia/Manila').toISODate();
+                            console.log("Selected date in Manila timezone:", selectedDateManila);
+                            dateInput.value = selectedDateManila;
+                        } else {
+                            // If no selected date, default to today's date
+                            dateInput.value = today;
+                        }
+                    
+                        // Set the max attribute to today's date to avoid future dates
+                        dateInput.max = today;
+                    });
                     </script>
                     
+
                     
 </div>
 
@@ -80,7 +92,7 @@
                 <td>{{ department.employees.count }}</td> 
                 <td>{% if department.present_today_count > 0 %}{{ department.present_today_count }}{% else %} No present {% endif %}</td> 
                 <td>
-                    <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ selected_date }}"> View</a>
+                   <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ selected_date }}"> View</a>
 
                 </td>
             </tr>

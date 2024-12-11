@@ -587,7 +587,7 @@ def delete_schedule(request, schedule_id):
         )
         alert_message = 'Event deleted successfully.'
         alert_icon = 'success'
-        return redirect('schedule_list')  # Redirect to the schedule list after deletion
+        return redirect('schedule_list', {})  # Redirect to the schedule list after deletion
 
     return render(request, 'confirm_delete.html', {
         'schedule': schedule,
@@ -735,6 +735,14 @@ def view_employee(request, employee_id):
 
 
 def get_selected_date(request):
+    philippine_tz = pytz.timezone('Asia/Manila')
+    
+    # Get the current time in UTC and then convert to Manila time
+    now_utc = timezone.now()
+    now_philippine = now_utc.astimezone(philippine_tz)
+    print("dsdsd", now_philippine)
+    
+    
     date_str = request.GET.get('date', '')  # Get the date from query parameters
     if date_str:
         try:
@@ -742,30 +750,43 @@ def get_selected_date(request):
             return timezone.datetime.fromisoformat(date_str).date()
         except ValueError:
             # If parsing fails, log the error and fall back to the current date
-            return now().date()
+            return now_philippine.date()
+            
     # If no date provided, default to today's date
-    return now().date()
+    return now_philippine.date()
 
-@login_required
+
 def departments(request):
+    philippine_tz = pytz.timezone('Asia/Manila')
+    
+    # Get the current time in UTC and then convert to Manila time
+    now_utc = timezone.now()
+    now_philippine = now_utc.astimezone(philippine_tz)
+    print("dsdsd", now_philippine)
+    current_date = now_philippine.date()
+
+# Print to confirm
+    print("Current Date in Manila:", current_date)
+    
+    # Use the date from Manila timezone
     selected_date = get_selected_date(request)
-
-    # Ensure that the selected date is valid (if necessary)
     if not selected_date:
-        selected_date = now().date()  # Import timezone if you use it
-
-    # Query departments with attendance counts
+        selected_date = current_date  # Localized to Manila time
+    
+    # Query departments with attendance counts for the selected date
     departments = Department.objects.annotate(
         late_count=Count('employees', filter=Q(employees__attendance__arrival_status='late', employees__attendance__date=selected_date)),
         absent_count=Count('employees', filter=Q(employees__attendance__arrival_status='absent', employees__attendance__date=selected_date)),
         on_time_count=Count('employees', filter=Q(employees__attendance__arrival_status='ontime', employees__attendance__date=selected_date)),
         present_today_count=F('late_count') + F('on_time_count')  # Calculate present based on late and on-time counts
     )
-        
+    
+    
+    
     context = {
         "departments": departments,
         "selected_date": selected_date.isoformat(),  # Ensure the selected date is passed as a string in YYYY-MM-DD format
-        "today": timezone.now().date().isoformat()
+        "today": now_philippine.date().isoformat()  # Pass today's date also in local time
     }
     
     return render(request, 'departments.html', context)
