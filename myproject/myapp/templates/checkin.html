@@ -92,7 +92,7 @@
           
               if (alertMessage && employeeName) {
                 // Update modal content
-                document.getElementById('modalBody').textContent = `Attendance of ${employeeName} marked successfully!`;
+                document.getElementById('modalBody').textContent = `time-in of ${employeeName} marked successfully!`;
           
                 // Show the modal
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
@@ -130,14 +130,14 @@
           
               if (checkinAlertMessage && employeeName) {
                 // Check-in modal logic
-                document.getElementById('modalBody').textContent = `Attendance of ${employeeName} marked successfully!`;
+                document.getElementById('modalBody').textContent = `time-in of ${employeeName} marked successfully!`;
                 const checkinModal = new bootstrap.Modal(document.getElementById('successModal'));
                 checkinModal.show();
               }
           
               if (timeoutAlertMessage && employeeName) {
                 // Time-out modal logic
-                document.getElementById('timeoutModalBody').textContent = `Time-out of ${employeeName} marked successfully!`;
+                document.getElementById('timeoutModalBody').textContent = `time-out of ${employeeName} marked successfully!`;
                 const timeoutModal = new bootstrap.Modal(document.getElementById('timeoutModal'));
                 timeoutModal.show();
               }
@@ -153,7 +153,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="alreadyCheckedInModalLabel">Already Log-In</h5>
+          <h5 class="modal-title" id="alreadyCheckedInModalLabel">Already Logged in</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="alreadyCheckedInModalBody">

@@ -127,7 +127,7 @@ def checkin(request):
             attendance.time_in = current_time
             attendance.save()
             return render(request, 'checkin.html', {
-    'alert_message': 'Attendance marked successfully!',
+    'alert_message': 'Logged in successfully!',
     'employee_name': f"{employee.first_name} {employee.last_name}",
     'button_text': button_text,
     'half_gap_time': half_gap_time_str,  # Pass half_gap_time to the template
@@ -138,14 +138,14 @@ def checkin(request):
         # Prevent re-checkin if already checked in and before half_gap_time
         if attendance.time_in is not None and current_time_dt < half_gap_time:
              return render(request, 'checkin.html', {
-        'already_checked_in_message': 'You have already checked in for today.',
+        'already_checked_in_message': 'You have already logged in for today.',
         'employee_name': f"{employee.first_name} {employee.last_name}"
         
     })
              
         if attendance.time_out is not None:
             return render(request, 'checkin.html', {
-        'already_timed_out_message': 'You have already timed out for today.',
+        'already_timed_out_message': 'You have already logged out for today.',
         'employee_name': f"{employee.first_name} {employee.last_name}"
        
     })
@@ -167,7 +167,7 @@ def checkin(request):
             attendance.time_out = current_time_dt
             attendance.save()
             return render(request, 'checkin.html', {
-        'timeout_alert_message': 'Time-out marked successfully!',
+        'timeout_alert_message': 'logout marked successfully!',
         'employee_name': f"{employee.first_name} {employee.last_name}",
         'button_text': button_text,
         'half_gap_time': half_gap_time_str,  # Pass half_gap_time to the template
@@ -356,13 +356,14 @@ def edit_employee(request, employee_id):
             
 
             # Only update the password if it's provided
-            if request.POST.get('password'):
-                employee.password = request.POST.get('password')
-            
+            password = request.POST.get('password')
+            if password:
+                employee.password = make_password(password) 
             # Assign the retrieved department object to the employee
             employee.department_name = department
             
             # Save the updated employee instance
+            
             employee.save()
             log_action(
             request.user,
