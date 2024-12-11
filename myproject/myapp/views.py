@@ -587,7 +587,7 @@ def delete_schedule(request, schedule_id):
         )
         alert_message = 'Event deleted successfully.'
         alert_icon = 'success'
-        return redirect('schedule_list', {})  # Redirect to the schedule list after deletion
+        return redirect('schedule_list')  # Redirect to the schedule list after deletion
 
     return render(request, 'confirm_delete.html', {
         'schedule': schedule,
