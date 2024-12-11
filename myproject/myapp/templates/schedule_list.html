@@ -212,25 +212,33 @@
 </script>
 {% endif %}
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get today's date in the format YYYY-MM-DD
-            const today = new Date().toISOString().split("T")[0];
-            const dateInput = document.getElementById("selected_date");
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the current date in the Asia/Manila time zone
+        const options = { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' };
+        const formatter = new Intl.DateTimeFormat('en-CA', options); // 'en-CA' outputs date in YYYY-MM-DD format
+        const parts = formatter.formatToParts(new Date());
         
-            // Set the 'min' attribute to today's date to disable past dates
-            dateInput.setAttribute("min", today);
+        // Combine parts to form the formatted date (YYYY-MM-DD)
+        const today = `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`;
         
-            // Optionally, set today's date as the default value if no other date is selected
-            if (!dateInput.value) {
-                dateInput.value = today;
-            }
-        });
-    </script>
+        const dateInput = document.getElementById("selected_date");
+        
+        // Set the 'min' attribute to today's date to disable past dates
+        dateInput.setAttribute("min", today);
+        
+        // Optionally, set today's date as the default value if no other date is selected
+        if (!dateInput.value) {
+            dateInput.value = today;
+        }
+        
+        console.log("Today's date in Asia/Manila timezone:", today);
+    });
+</script>
+
     
 
-
-
+    
 
 
     {% for schedule in schedules %}
@@ -273,6 +281,11 @@
     </div>
 </div>
 {% endfor %}
+
+
+
+
+
 
 
 
