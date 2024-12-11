@@ -464,7 +464,7 @@ def schedule_list(request):
                         f'Created an event for "{reason}" on {selected_date}.'
                         
                     )
-                    alert_message = f'Custom schedule for "{reason}" set successfully on {selected_date}!'
+                    alert_message = f'Custom schedule for {reason} set successfully on {selected_date}!'
                 alert_icon = 'success'
             except ValueError as ve:
                 alert_message = f'Error parsing time: {str(ve)}'
@@ -585,9 +585,15 @@ def delete_schedule(request, schedule_id):
             schedule,
             f'Event "{schedule}" is deleted.'
         )
+        alert_message = 'Event deleted successfully.'
+        alert_icon = 'success'
         return redirect('schedule_list')  # Redirect to the schedule list after deletion
 
-    return render(request, 'confirm_delete.html', {'schedule': schedule})
+    return render(request, 'confirm_delete.html', {
+        'schedule': schedule,
+        'alert_message': alert_message,
+        'alert_icon': alert_icon
+        })
 
 
 

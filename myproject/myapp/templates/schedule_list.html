@@ -195,18 +195,6 @@
             return;
         }
 
-        // Ensure time-in and time-out are within the selected date
-        const currentDate = new Date();
-        if (selectedDateTimeIn.toDateString() !== currentDate.toDateString()) {
-            alert("Time-in must be within the selected date.");
-            return;
-        }
-
-        if (selectedDateTimeOut.toDateString() !== currentDate.toDateString()) {
-            alert("Time-out must be within the selected date.");
-            return;
-        }
-
         // If all validations pass, submit the form
         this.submit();
     });
