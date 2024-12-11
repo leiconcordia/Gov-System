@@ -1,8 +1,18 @@
 
-
+.container{
+    position:fixed;
+    top:60px;
+    left:50px;
+    right:50px;
+    width:900px;
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 5px;
+}
 .home{
     width: 100%; /* Makes the section take up 100% of the available width */
     height: 100vh;
+   
     
   
 }
@@ -47,6 +57,8 @@ button {
     padding: 7px 10px 7px 10px;
     border: none;
     border-radius: 2px;
+   
+    
 }
 
 button:hover {
@@ -136,6 +148,7 @@ p {
     justify-content: center;
     align-items: end;
     margin-top: 200px;
+    margin-bottom: 10px;
 }
 .Logout_btn {
     display: flex;
@@ -155,5 +168,14 @@ p {
 .Logout_btn:hover {
     background-color: blue;
     cursor: pointer;
+}
+
+.topBot{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 70px;
+    margin-bottom: 10px;
+    margin-left: 70px;
+    margin-right: 70px;
 }
 

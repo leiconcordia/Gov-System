@@ -14,14 +14,28 @@
     
 
 <section class="home">
-    <h1>{{ employee.first_name }} {{ employee.last_name }}'s attendance record </h1>
+    <h1>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Records </h1>
+    <div class="container">
+    
 
+<div class="topBot">
     <!-- Month and Year Selection -->
     <form method="GET" action="" class="parent-calendar-employee">
-        <label for="month">Select Month and Year:</label>
+       
         <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" class="calendar"required>
         <button type="submit">Submit</button>
     </form>
+
+        
+    <button 
+    style="display: flex;  margin-left: 70px;" 
+    type="button" 
+    class="btn btn-danger" 
+    data-bs-toggle="modal" 
+    data-bs-target="#changePasswordModal">
+    Change Password
+</button>
+</div>
 
     <style>
         .month-input{
@@ -59,15 +73,7 @@
         });
     </script>
     
-    
-    <button 
-    style="display: flex;  margin-left: 70px;" 
-    type="button" 
-    class="btn btn-danger" 
-    data-bs-toggle="modal" 
-    data-bs-target="#changePasswordModal">
-    Change Password
-</button>
+
 
     <div class="table-container">
     <table class="table">

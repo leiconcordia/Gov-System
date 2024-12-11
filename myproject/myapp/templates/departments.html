@@ -80,7 +80,8 @@
                 <td>{{ department.employees.count }}</td> 
                 <td>{% if department.present_today_count > 0 %}{{ department.present_today_count }}{% else %} No present {% endif %}</td> 
                 <td>
-                    <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ default_date|date:'Y-m-d' }}" > View</a>
+                    <a class="btn btn-primary" href="{% url 'viewdepartment' department.id %}?date={{ selected_date }}"> View</a>
+
                 </td>
             </tr>
             {% empty %}
