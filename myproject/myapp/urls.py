@@ -41,7 +41,8 @@ urlpatterns = [
 
      path('schedules/', views.schedule_list, name='schedule_list'),
 
-    
+    path('archived-employees/', views.archived_employees, name='archived_employees'),
+    path('unarchive/<int:employee_id>/', views.unarchive_employee, name='unarchive_employee'),
 
 
     path('edit_sched/<int:schedule_id>/', views.edit_schedule, name='edit_sched'),

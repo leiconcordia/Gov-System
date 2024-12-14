@@ -531,7 +531,7 @@ button:hover {
   align-items: flex-end;
   margin-bottom: 0;
   margin-top: 50px;
-  gap:450px;
+  gap:100px;
 }
 .topButtons .ms-3  {
   display: flex;

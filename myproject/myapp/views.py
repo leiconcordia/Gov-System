@@ -274,10 +274,51 @@ def change_password(request):
     return render(request, 'employee-dashboard.html')
 
 
+
+
+def check_three_consecutive_absences(employee_id):
+    employee = Employee.objects.get(employee_id=employee_id)
+    print(f"Checking attendance for employee ID: {employee_id}")
+    
+    # Get all attendance records for the employee, ordered by date
+    attendance_records = Attendance.objects.filter(employee=employee).order_by('date')
+
+    # Print out the records to confirm the data
+    if not attendance_records:
+        print("No attendance records found for this employee.")
+        return False
+
+    # Print formatted records
+    for record in attendance_records:
+        print(f"Found record: Date: {record.date.strftime('%Y-%m-%d %H:%M:%S')}, Arrival Status: {record.arrival_status}")
+    
+    consecutive_absences = 0
+
+    for record in attendance_records:
+        print(f"Date: {record.date.strftime('%Y-%m-%d %H:%M:%S')}, Arrival Status: {record.arrival_status}")
+        
+        # Check if the employee is absent
+        if record.arrival_status.lower() == 'absent':  # Case insensitive check
+            consecutive_absences += 1
+            print(f"Consecutive absences: {consecutive_absences}")
+        else:
+            # Reset the counter if the employee is present
+            consecutive_absences = 0
+            print("Employee was present, resetting consecutive absences.")
+
+        # Check if we have reached three consecutive absences
+        if consecutive_absences >= 3:
+            print("Three consecutive absences found.")
+            return True
+
+    print("No three consecutive absences found.")
+    return False
+
+
+
 @login_required
 def employeelist(request):
     # Handle the signup process
-    
     if request.method == 'POST':
         
         # Extract data from the form
@@ -314,27 +355,45 @@ def employeelist(request):
 
         # Optionally, you could return a success message or redirect
         # return redirect('employeelist')
-
+    
     # Handle search functionality
     search_query = request.GET.get('search', '')
     if search_query:
         employees = Employee.objects.filter(
+            Q(archived=False),
             Q(employee_id__icontains=search_query) |
             Q(first_name__icontains=search_query) |
             Q(last_name__icontains=search_query) |
             Q(department_name__name__icontains=search_query)
         )
     else:
-        employees = Employee.objects.all()
+        employees = Employee.objects.filter(archived=False)
+        
+    employees_with_absences = []
+
+    for employee in employees:
+        if check_three_consecutive_absences(employee.employee_id):
+            employees_with_absences.append(employee.id)  # Add employee ID to the list
+            log_action(
+                request.user,
+                CHANGE,
+                employee,
+                f'Employee "{employee.first_name} {employee.last_name}" has three consecutive absences.'
+            )
 
     departments = Department.objects.all()  # Fetch departments here
     
     context = {
         "employees": employees,
         "departments": departments,
-       
+        "employees_with_absences": employees_with_absences,  # Pass the list of IDs
     }
+    
     return render(request, 'employeelist.html', context)
+
+
+
+
 
 
 def edit_employee(request, employee_id):
@@ -399,25 +458,58 @@ def archive_employee(request, employee_id):
     employee = Employee.objects.get(pk=employee_id)  # This is correct
 
 
-    # Delete the employee
-    employee.delete()
+    employee.archived = True
+    employee.save()
+
+    # Log the action
     log_action(
         request.user,
-        CHANGE,  # Use DELETION for delete actions
-        employee,  # Log the actual employee object
+        CHANGE,
+        employee,
         f'Employee "{employee.first_name} {employee.last_name}" moved to archived.'
     )
+
     # Prepare the alert message
-    alert_message = f'Employee "{employee.first_name} {employee.last_name}" was moved to archived!'
-    
-    # Use Django's messages framework to add the alert message
+    alert_message = f'Employee "{employee.first_name} {employee.last_name}" archived successfully!'
     messages.success(request, alert_message)
 
     # Redirect back to the employee list page
     return redirect('employeelist')
 
 
+@login_required
+def archived_employees(request):
+    # Fetch employees who are marked as archived
+    archived_employees = Employee.objects.filter(archived=True)
 
+    return render(request, 'archived_employees.html', {
+        'archived_employees': archived_employees
+    })
+
+
+@login_required
+def unarchive_employee(request, employee_id):
+    # Fetch the employee
+    employee = Employee.objects.get(pk=employee_id)
+
+    # Update the employee's archived status
+    employee.archived = False
+    # Success message
+    messages.success(request, f'Employee "{employee.first_name} {employee.last_name}" unarchived successfully!')
+    employee.save()
+
+    # Log the action (optional)
+    log_action(
+        request.user,
+        CHANGE,
+        employee,
+        f'Employee "{employee.first_name} {employee.last_name}" has been unarchived.'
+    )
+
+    
+
+    # Redirect to the archived employees list
+    return redirect('employeelist')
 
 
 

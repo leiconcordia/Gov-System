@@ -13,7 +13,7 @@ class Employee(models.Model):
     first_name = models.CharField(max_length=120)
     last_name = models.CharField(max_length=120)
     username = models.CharField(max_length=100, unique=True, default='defaultuser')
-
+    archived = models.BooleanField(default=False)
     password = models.CharField(max_length=128, default='defaultpassword')
 
     department_name = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='employees')
