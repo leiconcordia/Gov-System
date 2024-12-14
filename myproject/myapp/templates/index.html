@@ -50,6 +50,8 @@
         {% url 'employeelist' as employeelist_url %}
         {% url 'logout' as logout_url %}
         {% url 'schedule_list' as custom_url %}
+        {% url 'attendance' as attendance %}
+
       
         <li class="{% if request.path == admin_dashboard_url %}active{% endif %}">
             <a href="{{ admin_dashboard_url }}">
@@ -58,6 +60,15 @@
             </a>
             <span class="tooltip">Home</span>
         </li>
+
+        <li class="{% if request.path == attendance %}active{% endif %}">
+          <a href="{{ attendance }}">
+              <i class="bx bx-calendar"></i>
+              <span class="title">attendance Records</span>
+          </a>
+          <span class="tooltip">Log out</span>
+      </li>
+
         <li class="{% if request.path == departments_url %}active{% endif %}">
             <a href="{{ departments_url }}">
                 <i class="bx bx-network-chart"></i>
@@ -76,7 +87,7 @@
         <li class="{% if request.path == custom_url %}active{% endif %}">
           <a href="{{ custom_url }}">
               <i class="bx bx-edit"></i>
-              <span class="title">Custom Adjustments</span>
+              <span class="title">Events</span>
           </a>
           <span class="tooltip">Log out</span>
       </li>
@@ -89,17 +100,12 @@
             </a>
             <span class="tooltip">Log out</span>
         </li>
-
         
+        
+
       </ul>
       
-        {% comment %} <li>
-            <a href="{% url 'attendance_record' %}">
-            <i class="bx bx-layer"></i>
-            <span class="title">Attendance record</span>
-          </a>
-          <span class="tooltip">Attendance record</span>
-        </li>
+      {% comment %}
         <li>
             <a href="{% url 'reports' %}">
             <i class="bx bx-envelope"></i>

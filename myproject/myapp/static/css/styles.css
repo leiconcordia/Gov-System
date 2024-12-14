@@ -137,6 +137,8 @@
   background: var(--color-white);
 }
 
+
+
 .nav-links li:hover a {
   background: var(--color-hover);
 }
@@ -488,13 +490,13 @@ button:hover {
   
 }
   
-.parent-calendar-employee{
+/* .parent-calendar-employee{
   display:flex;
   color: #ddd;
   justify-content: end;
   margin-right: 40px;
 
-}
+}  */
 
 .custom {
   background-color: rgb(216, 216, 216);
@@ -546,15 +548,6 @@ button:hover {
   gap: 5px; /* Adds space between the elements (input and button) */
 }
 
-.parent-calendar-employee{
-  display: flex;
-  flex-direction: row;
-  
-  justify-content: end;
-  margin-right: 69px;
-  align-items: center;;
-  
-}
 .table-container-pdf {
   width: 90%;               /* Adjust width as needed */
   height: 100%;        /* Height constraint to enable scrolling */
@@ -594,3 +587,21 @@ button:hover {
   margin-bottom: 15px;
 
 }
+
+.topBotAttendance{
+  display: flex;
+ 
+  flex-direction: row;
+  justify-content: start;
+  margin-left: 70px;
+  align-self: start;
+
+}
+.attendance_calendar{
+
+  display: flex;
+  flex-direction: row;
+  
+  align-items: center;
+}
+   

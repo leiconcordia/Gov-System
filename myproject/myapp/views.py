@@ -394,7 +394,7 @@ def edit_employee(request, employee_id):
     
 
 @login_required
-def delete_employee(request, employee_id):
+def archive_employee(request, employee_id):
     # Ensure the employee exists
     employee = Employee.objects.get(pk=employee_id)  # This is correct
 
@@ -405,10 +405,10 @@ def delete_employee(request, employee_id):
         request.user,
         CHANGE,  # Use DELETION for delete actions
         employee,  # Log the actual employee object
-        f'Employee "{employee.first_name} {employee.last_name}" deleted.'
+        f'Employee "{employee.first_name} {employee.last_name}" moved to archived.'
     )
     # Prepare the alert message
-    alert_message = f'Employee "{employee.first_name} {employee.last_name}" deleted successfully!'
+    alert_message = f'Employee "{employee.first_name} {employee.last_name}" was moved to archived!'
     
     # Use Django's messages framework to add the alert message
     messages.success(request, alert_message)
@@ -599,30 +599,36 @@ def delete_schedule(request, schedule_id):
 
 
 
-# @login_required
-# def admin_dashboard_view(request):
-#     # Get today's date
-#     today = timezone.now().astimezone(pytz.timezone('Asia/Manila')).date()
+@login_required
+def attendance_records(request):
+    # Get the selected month from the GET request
+    selected_month = request.GET.get('month')
     
-#     attendance_records = get_non_absent_employees()
-    
-    
-#     print(f"Attendance records for today: {attendance_records}")
-    
-#     # Check if the attendance records contain any data
-#     if not attendance_records.exists():
-#         print("No attendance records found for today.")
-#     else:
-#         print(f"Found {attendance_records.count()} attendance records for today.")
-#     context = {
-#         'attendance_records': attendance_records
-#     }
-    
-#     return render(request, 'admin_dashboard.html', context)
+    # If no month is selected, use the current month
+    if selected_month:
+        # Parse the selected month (e.g., "2024-02") into a datetime object
+        year, month = map(int, selected_month.split('-'))
+        start_date = datetime(year, month, 1)  # First day of the selected month
+    else:
+        # Use the current month
+        current_date = now()
+        start_date = datetime(current_date.year, current_date.month, 1)
 
+    # Calculate the last day of the month
+    if start_date.month == 12:
+        end_date = datetime(start_date.year + 1, 1, 1)  # First day of next year
+    else:
+        end_date = datetime(start_date.year, start_date.month + 1, 1)  # First day of the next month
 
+    # Filter attendance records for the selected month
+    records = Attendance.objects.filter(date__gte=start_date, date__lt=end_date).order_by('-date')
 
-
+    return render(request, 'attendance_records.html', {
+        'records': records,
+        'selected_month': selected_month or start_date.strftime('%Y-%m')  # Pre-fill the input
+    })
+    
+    
 @login_required
 def admin_dashboard_view(request):
     # Get today's date

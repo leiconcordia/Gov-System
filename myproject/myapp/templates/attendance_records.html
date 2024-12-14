@@ -1,0 +1,92 @@
+{% extends 'index.html' %}
+
+{% block title %}Attendance Records{% endblock %}
+{% block content %}
+<section class="home">
+    <p class="today">Attendance Records</p>
+
+    <div class="topBotAttendance">
+        <!-- Month and Year Selection -->
+        <form method="GET" action="" class="attendance_calendar">
+           
+            <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" class="calendar"required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Get the current date
+                const today = new Date();
+                
+                // Format the current month and year in YYYY-MM format
+                const currentYear = today.getFullYear();
+                const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+                const currentMonthYear = `${currentYear}-${currentMonth}`;
+                
+                // Get the month input field
+                const monthInput = document.getElementById("month");
+                
+                // Check if the selected month exists in the template context
+                const selectedMonth = "{{ selected_month }}";
+                
+                // If there's a selected month, set it as the value
+                if (selectedMonth) {
+                    monthInput.value = selectedMonth;
+                } else {
+                    monthInput.value = currentMonthYear; // Default to the current month if not selected
+                }
+        
+                // Set the max attribute to the current month to disable future months
+                monthInput.setAttribute("max", currentMonthYear);
+            });
+        </script>
+
+    <div class="table-container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Employee ID</th>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Time In</th>
+                <th scope="col">Arrival Status</th>
+                <th scope="col">Time out</th>
+                <th scope="col">Leaving Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for records in records %}
+            <tr>
+                <th scope="row">{{ records.date }}</th>
+                <td>{{ records.employee.first_name }} {{ records.employee.last_name }}</td>
+                <td>{{ records.time_in|time:"g:i a" }}</td>  <!-- Adjust based on your field names -->
+                <td>{{ records.arrival_status }}</td>
+                <td>{{ records.time_out|time:"g:i a" |default:"-" }}</td>  <!-- Adjust based on your field names -->
+                <td>{{ records.timeout_status|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No attendance records for today.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+
+  
+
+  
+
+
+
+</section>
+
+
+
+
+{% endblock %}

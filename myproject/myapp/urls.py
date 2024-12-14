@@ -11,7 +11,11 @@ urlpatterns = [
     path('signin/', views.signin, name='signin'),
     path('employee-dashboard/', views.employee_dashboard, name='employee-dashboard'),
     
+    path('attendance_records/', views.attendance_records, name='attendance'),
+    
     path('admin_dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
+    
+    
     path('login/', views.login_view, name='login'),  
     path('departments/', views.departments, name='departments'),
     
@@ -29,7 +33,7 @@ urlpatterns = [
     path('employee/<str:employee_id>/', views.view_employee, name='view_employee'),
     
     path('employee/edit/<int:employee_id>/', views.edit_employee, name='edit_employee'),
-    path('employee/delete/<int:employee_id>/', views.delete_employee, name='delete_employee'),
+    path('employee/archive/<int:employee_id>/', views.archive_employee, name='archive_employee'),
     
      
     path('add-department/', views.add_department, name='add_department'),
@@ -37,7 +41,7 @@ urlpatterns = [
 
      path('schedules/', views.schedule_list, name='schedule_list'),
 
-
+    
 
 
     path('edit_sched/<int:schedule_id>/', views.edit_schedule, name='edit_sched'),
