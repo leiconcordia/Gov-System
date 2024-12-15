@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from .models import Department,Employee, Attendance, CustomSchedule, OvertimeSetting
+from .models import Department,Employee, Attendance, CustomSchedule, DefaultSchedule, OvertimeSetting
 from django.utils import timezone
 import pytz
 from django.db.models import Count, Q, F
@@ -21,10 +21,24 @@ from django.http import JsonResponse
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.utils.timezone import now
 
+
+
+def log_action(user, action_flag, obj, change_message):
+
+    LogEntry.objects.log_action(
+        user_id=user.id,
+        content_type_id=ContentType.objects.get_for_model(obj).id,
+        object_id=obj.id,
+        object_repr=str(obj),
+        action_flag=action_flag,
+        change_message=change_message
+    )
+
 def get_schedule(current_date):
     # Default time-in and time-out
-    default_time_in = timezone.datetime.strptime('08:10', '%H:%M').time()
-    default_time_out = timezone.datetime.strptime('18:10', '%H:%M').time()
+    default_schedule = DefaultSchedule.objects.first()
+    default_time_in = default_schedule.time_in if default_schedule else timezone.datetime.strptime('08:10', '%H:%M').time()
+    default_time_out = default_schedule.time_out if default_schedule else timezone.datetime.strptime('18:10', '%H:%M').time()
 
     try:
         # Fetch custom schedule if available
@@ -39,19 +53,6 @@ def get_schedule(current_date):
         print(f"No custom schedule found. Using default times: Time In: {time_in}, Time Out: {time_out}")
     
     return time_in, time_out
-
-def log_action(user, action_flag, obj, change_message):
-
-    LogEntry.objects.log_action(
-        user_id=user.id,
-        content_type_id=ContentType.objects.get_for_model(obj).id,
-        object_id=obj.id,
-        object_repr=str(obj),
-        action_flag=action_flag,
-        change_message=change_message
-    )
-
-
 
 
 def checkin(request):
@@ -991,12 +992,49 @@ def settings(request):
             alert_message = 'Invalid overtime duration provided.'
             alert_icon = 'error'
 
-    # Fetch the current overtime setting for display
+    # Handle default schedule update if form is submitted
+    if request.method == 'POST' and 'time_in' in request.POST and 'time_out' in request.POST:
+        try:
+            # Parse time strings from the request
+            time_in_str = request.POST.get('time_in')
+            time_out_str = request.POST.get('time_out')
+            
+            # Convert strings to datetime.time objects
+            time_in = datetime.strptime(time_in_str, '%H:%M').time()
+            time_out = datetime.strptime(time_out_str, '%H:%M').time()
+            
+            # Get or create the default schedule entry
+            default_schedule, _ = DefaultSchedule.objects.get_or_create(id=1)
+            default_schedule.time_in = time_in
+            default_schedule.time_out = time_out
+            default_schedule.save()
+            
+            # Log the update
+            log_action(
+                request.user,
+                CHANGE,
+                default_schedule,
+                f"Updated default schedule to Time-In: {time_in.strftime('%I:%M %p')}, Time-Out: {time_out.strftime('%I:%M %p')}."
+            )
+            
+            alert_message = 'Default schedule updated successfully.'
+            alert_icon = 'success'
+        except ValueError:
+            alert_message = 'Invalid time format. Please use HH:MM (24-hour format).'
+            alert_icon = 'error'
+        except Exception as e:
+            alert_message = f'An error occurred: {str(e)}'
+            alert_icon = 'error'
+
+    # Fetch the current overtime setting and default schedule for display
     overtime_setting = OvertimeSetting.objects.first()
     current_overtime_duration = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 hours
+    default_schedule = DefaultSchedule.objects.first()
+
     return render(request, 'settings.html', {
         'overtime_setting': overtime_setting,
         'current_overtime_duration': current_overtime_duration,
+        'default_schedule': default_schedule,
         'alert_message': alert_message,
         'alert_icon': alert_icon,
     })

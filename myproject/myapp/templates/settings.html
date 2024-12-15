@@ -14,7 +14,6 @@
 
 
 
-
 <div class="container mt-4">
     <div class="row">
         <!-- Box 1 -->
@@ -22,20 +21,49 @@
             <div class="card p-3 shadow-sm">
                 <h5>Current Overtime Duration: <strong>{{ current_overtime_duration|floatformat:0 }} hours</strong></h5>
             </div>
+            <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#overtimeModal">
+                Change Overtime Duration
+            </button>
         </div>
-        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#overtimeModal" >
-            Change Overtime Duration
-        </button>
+
         <!-- Box 2 -->
         <div class="col-md-6">
             <div class="card p-3 shadow-sm">
-                <!-- Add content for Box 2 here -->
-                <h1>Default Time</h1>
-                <h5>Default Time-In:</h5>
-                <h5>Default Time-Out:</h5>
+                <h1>Default Schedule</h1>
+                <h5>Default Time-In: <strong>{{ default_schedule.time_in }}</strong></h5>
+                <h5>Default Time-Out: <strong>{{ default_schedule.time_out }}</strong></h5>
+            </div>
+            <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#defaultScheduleModal">
+                Change Default Schedule
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Changing Default Schedule -->
+<div class="modal fade" id="defaultScheduleModal" tabindex="-1" aria-labelledby="defaultScheduleModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="defaultScheduleModalLabel">Change Default Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Form inside the modal for updating default schedule -->
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label for="time_in">Default Time-In:</label>
+                        <input type="time" class="form-control" id="time_in" name="time_in" value="{{ default_schedule.time_in }}" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="time_out">Default Time-Out:</label>
+                        <input type="time" class="form-control" id="time_out" name="time_out" value="{{ default_schedule.time_out }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Update Schedule</button>
+                </form>
             </div>
         </div>
-        
     </div>
 </div>
 

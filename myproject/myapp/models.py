@@ -67,3 +67,11 @@ class OvertimeSetting(models.Model):
 
     def __str__(self):
         return f"Updated Overtime Duration To: {self.overtime_duration_hours} hours"
+
+
+class DefaultSchedule(models.Model):
+    time_in = models.TimeField(default='08:10')
+    time_out = models.TimeField(default='18:10')
+
+    def __str__(self):
+        return f"Default Schedule: Time In - {self.time_in}, Time Out - {self.time_out}"
