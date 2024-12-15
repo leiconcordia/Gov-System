@@ -604,4 +604,14 @@ button:hover {
   
   align-items: center;
 }
-   
+
+.counter-container {
+  display: flex;
+  justify-content: space-between;  /* Aligns the two sections to opposite sides */
+  gap: 20px;  /* Adds space between the two sections */
+  padding: 20px;
+}
+
+.arrival-status, .leaving-status {
+  width: 45%;  /* Each section takes up 45% of the container width */
+}
