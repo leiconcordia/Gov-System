@@ -89,15 +89,34 @@ def checkin(request):
         print(f"Employee Input: {employee_input}")
 
         try:
-            # Try to find employee by ID or by name
+            # Try to find employee by ID
             employee = Employee.objects.get(employee_id=employee_input)
+            # If found, mark attendance
+            # Mark attendance logic goes here
         except Employee.DoesNotExist:
             try:
+                # Try to find employees by name
                 first_name, last_name = employee_input.split()
-                employee = Employee.objects.get(first_name__iexact=first_name, last_name__iexact=last_name)
-            except (Employee.DoesNotExist, ValueError):
+                employees = Employee.objects.filter(first_name__iexact=first_name, last_name__iexact=last_name)
+
+                if employees.count() == 1:
+                    # If exactly one employee found, mark attendance
+                    employee = employees.first()
+                    # Mark attendance logic goes here
+                elif employees.count() > 1:
+                    # If multiple employees with the same name, pass the options to the modal
+                    return render(request, 'checkin.html', {
+                        'employees': employees,  # Pass the employees queryset to display in the modal
+                    })
+                else:
+                    # If no employees found with the given name
+                    return render(request, 'checkin.html', {
+                        'employee_not_found': 'Please try again.'
+                    })
+            except ValueError:
+                # If input format is incorrect (e.g., no space between first and last name)
                 return render(request, 'checkin.html', {
-        'employee_not_found': 'please try again.'
+                    'employee_not_found': 'Please try again with a valid name format.'
                 })
             
         
