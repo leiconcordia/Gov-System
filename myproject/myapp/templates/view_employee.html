@@ -8,7 +8,7 @@
     <div class="navs d-flex align-items-center justify-content-between">
         <!-- Title Section -->
         <div class="d-flex align-items-center">
-            <p>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record</p>
+            <p style="color:black">{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record</p>
         </div>
         <div style="margin-right: 90px;">
             <a href="{% url 'employeelist' %}" aria-label="Close">
@@ -26,7 +26,7 @@
     <form method="GET" action="" class="parent-calendar-employee">
         
         <input type="month" id="month" name="month" class="month-input" value="{{ selected_month }}" required>
-        <button type="submit">Submit</button>
+        <button type="submit" style="padding-top:6px; padding-bottom:6px">Submit</button>
     </form>
 
     <style>
@@ -50,7 +50,7 @@
             // Format the current month and year in YYYY-MM format
             const currentYear = today.getFullYear();
             const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-            const currentMonthYear = `${currentYear}-${currentMonth}`;
+            const currentMonthYear = ${currentYear}-${currentMonth};
             
             // Get the month input field
             const monthInput = document.getElementById("month");
@@ -74,7 +74,7 @@
     
     
     <button class="btn btn-outline-danger d-flex align-items-center justify-content-start" 
-    style="margin-left: 100px;" 
+    style="margin-left: 260px;" 
     id="download-button">
 <svg xmlns="http://www.w3.org/2000/svg" 
      width="16" 
@@ -127,6 +127,24 @@ Export as PDF
 <div id="pdf-content" style="display: none;">
     <h2>{{ employee.first_name }} {{ employee.last_name }}'s Attendance Record </h2>
     <h2>Date: {{ selected_month }}</h2>
+    
+     <!-- Counter Container -->
+     <div class="counter-container">
+        <div class="arrival-status">
+            <h5>For arrival status</h5>
+            <p>Absent: {{ absent_count }}</p>
+            <p>Time-In On-Time: {{ arrival_on_time_count }}</p>
+            <p>Late: {{ late_count }}</p>
+        </div>
+        <div class="leaving-status">
+            <h5>For leaving status</h5>
+            <p>Time-out On-Time: {{ timeout_on_time_count }}</p>
+            <p>Left early: {{ left_early_count }}</p>
+            <p>Overtime: {{ overtime_count }}</p>
+        </div>
+    </div>
+    
+    
     <div class="table-container">
         <table class="table">
             <thead>
@@ -155,6 +173,8 @@ Export as PDF
             </tbody>
         </table>
     </div>
+
+    
 </div>
 
 <!-- Add jsPDF and html2canvas libraries -->

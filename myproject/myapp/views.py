@@ -568,44 +568,14 @@ def schedule_list(request):
             alert_message = 'Please provide all required fields!'
             alert_icon = 'warning'
 
-        # Handle overtime duration update if form is submitted
-        if 'overtime_duration' in request.POST:
-            try:
-                overtime_duration = int(request.POST.get('overtime_duration'))
-
-                if overtime_duration < 1:
-                    alert_message = 'Overtime duration must be at least 1 hour.'
-                    alert_icon = 'error'
-                else:
-                    # Update the overtime setting or create a new one
-                    overtime_setting = OvertimeSetting.objects.first()
-                    if overtime_setting:
-                        
-                        # Capture the current overtime duration before updating
-                        current_overtime_duration = overtime_setting.overtime_duration_hours
-                        
-                        overtime_setting.overtime_duration_hours = overtime_duration
-                        overtime_setting.save()
-                        log_action(request.user, CHANGE, overtime_setting, f'Updated overtime duration from {current_overtime_duration} to {overtime_duration} hours.')
-                    else:
-                        OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
-                    
-                    alert_message = f'Overtime duration set to {overtime_duration} hours.'
-                    alert_icon = 'success'
-            except ValueError:
-                alert_message = 'Invalid overtime duration provided.'
-                alert_icon = 'error'
-
-    # Fetch the current overtime setting (for display)
-    overtime_setting = OvertimeSetting.objects.first()
-    current_overtime_duration = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 hours
+       
 
     # Render the schedule list with any alert messages
     return render(request, 'schedule_list.html', {
         'schedules': schedules,
         'alert_message': alert_message,
         'alert_icon': alert_icon,
-        'overtime_duration': current_overtime_duration,
+        
         'button_display': button_display,
         'today': today,
         'attendance_exists_today': attendance_exists_today,
@@ -792,7 +762,6 @@ def login_view(request):
 
 
 
-@login_required
 def view_employee(request, employee_id):
     # Assuming employee_id is being passed as a string
     try:
@@ -808,6 +777,7 @@ def view_employee(request, employee_id):
     
     attendance_records = Attendance.objects.filter(employee=employee)  # Default to all records
     
+
     # Filter attendance records if a month is selected
     if selected_month:
         try:
@@ -817,15 +787,39 @@ def view_employee(request, employee_id):
                 date__year=year,
                 date__month=month
             )
+            print(attendance_records)
         except ValueError:
             # Handle the error if the format is incorrect
             attendance_records = Attendance.objects.filter(employee=employee)
+            
+            
+     # Calculate counts based on filtered records
+# Ensure case insensitivity and handle null values
+    absent_count = attendance_records.filter(arrival_status__iexact="Absent").count()
+    arrival_on_time_count = attendance_records.filter(arrival_status__iexact="ontime").count()
+    late_count = attendance_records.filter(arrival_status__iexact="Late").count()
+
+    timeout_on_time_count = attendance_records.filter(timeout_status__iexact="ontime").count()
+    left_early_count = attendance_records.filter(timeout_status__iexact="early").count()
+    overtime_count = attendance_records.filter(timeout_status__iexact="overtime").count()
+ 
+
+
+
+    
+
+    # Render the context for the template
     return render(request, 'view_employee.html', {
         'employee': employee,
         'attendance_records': attendance_records,
         'selected_month': selected_month,
+        'absent_count': absent_count,
+        'arrival_on_time_count': arrival_on_time_count,
+        'late_count': late_count,
+        'timeout_on_time_count': timeout_on_time_count,
+        'left_early_count': left_early_count,
+        'overtime_count': overtime_count,
     })
-
 
 
 
@@ -894,26 +888,33 @@ def departments(request):
 def add_department(request):
     if request.method == 'POST':
         department_name = request.POST.get('department_name', '').strip()  # Ensure the name is stripped of leading/trailing spaces
+        
         if department_name:
-            try:
-                # Create a new department
-                new_department = Department.objects.create(name=department_name)
+            # Check if a department with the same name already exists
+            if Department.objects.filter(name=department_name).exists():
+                # If a duplicate is found, show an error message
+                messages.error(request, 'Department name already exists. Please choose a different name.')
+                return redirect('departments') 
+            else:
+                try:
+                    # Create a new department if it doesn't exist
+                    new_department = Department.objects.create(name=department_name)
 
-                # Log the action
-                log_action(
-                    request.user,
-                    ADDITION,  
-                    new_department,  
-                    f'New department "{new_department.name}" created.'
-                )
+                    # Log the action (optional)
+                    log_action(
+                        request.user,
+                        ADDITION,  
+                        new_department,  
+                        f'New department "{new_department.name}" created.'
+                    )
 
-                # Display a success message
-                messages.success(request, 'Department created successfully.')
-                return redirect('departments')  # Redirect to the departments list or desired page
+                    # Display a success message
+                    messages.success(request, 'Department created successfully.')
+                    return redirect('departments')  # Redirect to the departments list or desired page
 
-            except Exception as e:
-                # Handle any errors during creation
-                messages.error(request, f'Error creating department: {e}')
+                except Exception as e:
+                    # Handle any errors during creation
+                    messages.error(request, f'Error creating department: {e}')
         else:
             # Handle empty input
             messages.error(request, 'Department name cannot be empty.')
@@ -961,3 +962,41 @@ def get_non_absent_employees(date=None):
     
     # Return attendance records for non-absent employees
     return Attendance.objects.filter(employee__in=non_absent_employees, date=date)
+def settings(request):
+    alert_message = ''
+    alert_icon = ''
+    
+    # Handle overtime duration update if form is submitted
+    if request.method == 'POST' and 'overtime_duration' in request.POST:
+        try:
+            overtime_duration = int(request.POST.get('overtime_duration'))
+            if overtime_duration < 1:
+                alert_message = 'Overtime duration must be at least 1 hour.'
+                alert_icon = 'error'
+            else:
+                # Update or create the overtime setting
+                overtime_setting = OvertimeSetting.objects.first()
+                if overtime_setting:
+                    # Log the previous and updated value
+                    current_overtime_duration = overtime_setting.overtime_duration_hours
+                    overtime_setting.overtime_duration_hours = overtime_duration
+                    overtime_setting.save()
+                    log_action(request.user, CHANGE, overtime_setting, f'Updated overtime duration from {current_overtime_duration} to {overtime_duration} hours.')
+                else:
+                    OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
+                
+                alert_message = f'Overtime duration set to {overtime_duration} hours.'
+                alert_icon = 'success'
+        except ValueError:
+            alert_message = 'Invalid overtime duration provided.'
+            alert_icon = 'error'
+
+    # Fetch the current overtime setting for display
+    overtime_setting = OvertimeSetting.objects.first()
+    current_overtime_duration = overtime_setting.overtime_duration_hours if overtime_setting else 3  # Default to 3 hours
+    return render(request, 'settings.html', {
+        'overtime_setting': overtime_setting,
+        'current_overtime_duration': current_overtime_duration,
+        'alert_message': alert_message,
+        'alert_icon': alert_icon,
+    })

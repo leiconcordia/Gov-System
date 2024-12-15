@@ -7,7 +7,7 @@
 
 
 <section class="home">
-    <p>Departments</p>
+    <p style="color:white;">Departments</p>
 
     
     
@@ -32,9 +32,9 @@
 
                     <form method="get" action="{% url 'departments' %}" class="parent-calendar">
                         <div>
-                            <label for="date">Select Date:</label>
+                            <label for="date" style="color: gray;">Select Date:</label>
                             <input type="date" id="date" name="date" class="date-input" value="{{ selected_date }}" required>
-                            <button type="submit">Submit</button>
+                            <button type="submit" style="padding-top:6px; padding-bottom:6px;">Submit</button>
                         </div>
                     </form>
 
@@ -69,14 +69,9 @@
                         // Set the max attribute to today's date to avoid future dates
                         dateInput.max = today;
                     });
-
-                    
-                    // Using moment-timezone to work with specific time zones
-
-
-                    
                     </script>
                     
+
                     
 </div>
 
@@ -149,22 +144,52 @@
 
 
 </section>
-
 {% if messages %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             {% for message in messages %}
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '{{ message|escapejs }}',
-                    showCloseButton: true,
-                    confirmButtonText: 'OK'
-                });
+                {% if message.tags == 'success' %}
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: '{{ message|escapejs }}',
+                        showCloseButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                {% elif message.tags == 'error' %}
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: '{{ message|escapejs }}',
+                        showCloseButton: true,
+                        confirmButtonText: 'OK'
+                    });
+                {% endif %}
             {% endfor %}
         });
     </script>
 {% endif %}
+
+
+
+<script>
+    // JavaScript function to trigger an alert on localhost
+    function checkForDuplicateDepartment() {
+        // Find the message in the DOM
+        const messageElement = document.getElementById('message');
+        
+        // Check if a message exists and contains the duplicate message
+        if (messageElement && messageElement.textContent.includes("Department name already exists")) {
+            // Trigger an alert
+            alert("This department name already exists! Please choose a different name.");
+        }
+    }
+
+    // Call the function after the page has loaded
+    window.onload = checkForDuplicateDepartment;
+</script>
+
+
                
 
 {% endblock %}
