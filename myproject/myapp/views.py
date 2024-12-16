@@ -296,16 +296,54 @@ def change_password(request):
 
 
 
+# def check_three_consecutive_absences(employee_id):
+#     employee = Employee.objects.get(employee_id=employee_id)
+#     print(f"Checking attendance for employee ID: {employee_id}")
+    
+#     # Get all attendance records for the employee, ordered by date
+#     attendance_records = Attendance.objects.filter(employee=employee).order_by('date')
+
+#     # Print out the records to confirm the data
+#     if not attendance_records:
+#         print("No attendance records found for this employee.")
+#         return False
+
+#     # Print formatted records
+#     for record in attendance_records:
+#         print(f"Found record: Date: {record.date.strftime('%Y-%m-%d %H:%M:%S')}, Arrival Status: {record.arrival_status}")
+    
+#     consecutive_absences = 0
+
+#     for record in attendance_records:
+#         print(f"Date: {record.date.strftime('%Y-%m-%d %H:%M:%S')}, Arrival Status: {record.arrival_status}")
+        
+#         # Check if the employee is absent
+#         if record.arrival_status.lower() == 'absent':  # Case insensitive check
+#             consecutive_absences += 1
+#             print(f"Consecutive absences: {consecutive_absences}")
+#         else:
+#             # Reset the counter if the employee is present
+#             consecutive_absences = 0
+#             print("Employee was present, resetting consecutive absences.")
+
+#         # Check if we have reached three consecutive absences
+#         if consecutive_absences >= 3:
+#             print("Three consecutive absences found.")
+#             return True
+
+#     print("No three consecutive absences found.")
+#     return False
+
+
 def check_three_consecutive_absences(employee_id):
     employee = Employee.objects.get(employee_id=employee_id)
-    print(f"Checking attendance for employee ID: {employee_id}")
+   
     
     # Get all attendance records for the employee, ordered by date
     attendance_records = Attendance.objects.filter(employee=employee).order_by('date')
 
     # Print out the records to confirm the data
     if not attendance_records:
-        print("No attendance records found for this employee.")
         return False
 
     # Print formatted records
@@ -313,6 +351,7 @@ def check_three_consecutive_absences(employee_id):
         print(f"Found record: Date: {record.date.strftime('%Y-%m-%d %H:%M:%S')}, Arrival Status: {record.arrival_status}")
     
     consecutive_absences = 0
+    has_reached_three_absences = False
 
     for record in attendance_records:
         print(f"Date: {record.date.strftime('%Y-%m-%d %H:%M:%S')}, Arrival Status: {record.arrival_status}")
@@ -323,16 +362,26 @@ def check_three_consecutive_absences(employee_id):
             print(f"Consecutive absences: {consecutive_absences}")
         else:
             # Reset the counter if the employee is present
-            consecutive_absences = 0
-            print("Employee was present, resetting consecutive absences.")
+            if has_reached_three_absences:
+                # Reset absences after having reached three consecutive absences
+                has_reached_three_absences = False
+                consecutive_absences = 0
+                print("Employee logged in after 3 consecutive absences. Absence counter reset.")
+            else:
+                consecutive_absences = 0
+                print("Employee was present, resetting consecutive absences.")
 
         # Check if we have reached three consecutive absences
-        if consecutive_absences >= 3:
-            print("Three consecutive absences found.")
-            return True
+        if consecutive_absences == 3:
+            has_reached_three_absences = True
+            print("Three consecutive absences detected.")
 
-    print("No three consecutive absences found.")
-    return False
+    if has_reached_three_absences:
+        print("Employee had three consecutive absences but has since logged in.")
+    else:
+        print("No three consecutive absences found.")
+    
+    return has_reached_three_absences
 
 
 
@@ -410,6 +459,29 @@ def employeelist(request):
     }
     
     return render(request, 'employeelist.html', context)
+
+
+
+
+
+
+
+
+@login_required
+def delete_employee(request, employee_id):
+    try:
+        employee = Employee.objects.get(pk=employee_id)
+        employee.delete()
+        log_action(
+        request.user,
+        CHANGE,  # Use DELETION for delete actions
+        employee,  # Log the actual employee object
+        f'Employee "{employee.first_name} {employee.last_name}" deleted.'
+    )
+        messages.success(request, f'Employee "{employee.first_name} {employee.last_name}" deleted successfully!')
+    except Employee.DoesNotExist:
+        messages.error(request, 'Employee does not exist.')
+    return redirect('archived_employees')
 
 
 
