@@ -20,8 +20,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.utils.timezone import now
-
-
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 def log_action(user, action_flag, obj, change_message):
 
@@ -414,6 +414,7 @@ def employeelist(request):
             
             # Save the employee to the database
             employee.save()
+            update_badge_count()
             log_action(
                 request.user,
                 CHANGE,  # Use DELETION for delete actions
@@ -442,7 +443,8 @@ def employeelist(request):
 
     for employee in employees:
         if check_three_consecutive_absences(employee.employee_id):
-            employees_with_absences.append(employee.id)  # Add employee ID to the list
+            employees_with_absences.append(employee.id)  # Add employee ID to the lis
+            update_badge_count()
             log_action(
                 request.user,
                 CHANGE,
@@ -472,6 +474,7 @@ def delete_employee(request, employee_id):
     try:
         employee = Employee.objects.get(pk=employee_id)
         employee.delete()
+        update_badge_count()
         log_action(
         request.user,
         CHANGE,  # Use DELETION for delete actions
@@ -516,6 +519,7 @@ def edit_employee(request, employee_id):
             # Save the updated employee instance
             
             employee.save()
+            update_badge_count()
             log_action(
             request.user,
             CHANGE,  # Use DELETION for delete actions
@@ -554,6 +558,7 @@ def archive_employee(request, employee_id):
     employee.save()
 
     # Log the action
+    update_badge_count()
     log_action(
         request.user,
         CHANGE,
@@ -591,6 +596,7 @@ def unarchive_employee(request, employee_id):
     employee.save()
 
     # Log the action (optional)
+    update_badge_count()
     log_action(
         request.user,
         CHANGE,
@@ -641,6 +647,7 @@ def schedule_list(request):
                   
                 # Log the action after creating or updating
                 if created:
+                    update_badge_count()
                     log_action(
                         request.user,
                         ADDITION,
@@ -697,6 +704,7 @@ def edit_schedule(request, schedule_id):
                 schedule.time_out = time_out
                 schedule.reason = reason
                 schedule.save()
+                update_badge_count()
                 log_action(
                     request.user,
                     CHANGE,
@@ -733,6 +741,7 @@ def delete_schedule(request, schedule_id):
     if request.method == 'POST':
         schedule.delete()
          # Log the deletion action
+        update_badge_count()
         log_action(
             request.user,
             CHANGE,  # Use CHANGE for deletion in this context
@@ -782,7 +791,8 @@ def attendance_records(request):
         'selected_month': selected_month or start_date.strftime('%Y-%m')  # Pre-fill the input
     })
     
-    
+# Global variable for badge count
+badgecount = 0
 @login_required
 def admin_dashboard_view(request):
     # Get today's date
@@ -812,10 +822,38 @@ def admin_dashboard_view(request):
     context = {
         'attendance_records': attendance_records,
         'recent_logs': recent_logs,
+        'badgecount': badgecount,
     }
     
     return render(request, 'admin_dashboard.html', context)
 
+
+# Update badgecount when a log is added
+def update_badge_count():
+    global badgecount
+    badgecount += 1  # Increment badge count
+
+
+# Reset badgecount when the notification container is closed
+def reset_badge_count():
+    global badgecount
+    badgecount = 0  # Reset to 0
+    
+    
+def get_badge_count(request):
+    global badgecount
+    return JsonResponse({'badgecount': badgecount})
+
+
+
+@csrf_exempt
+def reset_badge_count_view(request):
+    global badgecount
+    if request.method == "POST":
+        badgecount = 0
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+    
 
 def logout_view(request):
     logout(request)
@@ -991,7 +1029,7 @@ def add_department(request):
                 try:
                     # Create a new department if it doesn't exist
                     new_department = Department.objects.create(name=department_name)
-
+                    update_badge_count()
                     # Log the action (optional)
                     log_action(
                         request.user,
@@ -1073,6 +1111,7 @@ def settings(request):
                     current_overtime_duration = overtime_setting.overtime_duration_hours
                     overtime_setting.overtime_duration_hours = overtime_duration
                     overtime_setting.save()
+                    update_badge_count()
                     log_action(request.user, CHANGE, overtime_setting, f'Updated overtime duration from {current_overtime_duration} to {overtime_duration} hours.')
                 else:
                     OvertimeSetting.objects.create(overtime_duration_hours=overtime_duration)
@@ -1101,6 +1140,7 @@ def settings(request):
             default_schedule.save()
             
             # Log the update
+            update_badge_count()
             log_action(
                 request.user,
                 CHANGE,

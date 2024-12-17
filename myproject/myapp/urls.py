@@ -51,5 +51,8 @@ urlpatterns = [
      path('employee/delete/<int:employee_id>/', views.delete_employee, name='delete_employee'),
 
     
+    path('get-badge-count/', views.get_badge_count, name='get_badge_count'),
+    path('reset-badge-count/', views.reset_badge_count_view, name='reset_badge_count'),
+    
     
 ]

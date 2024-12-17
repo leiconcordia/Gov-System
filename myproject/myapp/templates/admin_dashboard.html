@@ -97,83 +97,58 @@
 
   
 
-  
 
 
-  <script>
-    const notifBtn = document.getElementById("notifBtn");
-    const notifContainer = document.getElementById("notifContainer");
-    const notifBadge = document.getElementById("notifBadge");
-    const notifBody = notifContainer.querySelector(".notif-body");
+
+<script>
+
     
-    // Initial count of notifications
-    let currentNotificationsCount = document.querySelectorAll('.notif-item').length;
-    let newNotifs = 0; // Initialize new notifications count to 0
-    console.log("The current count is: " + currentNotificationsCount);
-
-    // Function to update the badge count
-    function updateBadgeCount() {
-        if (newNotifs > 0) {
-            notifBadge.textContent = newNotifs; // Set badge count to new notifications count
-            notifBadge.style.display = "block"; // Show the badge
-        } else {
-            notifBadge.style.display = "none"; // Hide the badge if no new notifications
+    const notifBadge = document.getElementById("notifBadge");
+    const notifContainer = document.getElementById("notifContainer");
+    const notifBtn = document.getElementById("notifBtn");
+    
+    // Fetch badge count from the server
+    async function fetchBadgeCount() {
+        try {
+            const response = await fetch("/get-badge-count/"); // Create a view to handle this endpoint
+            const data = await response.json();
+            const badgeCount = data.badgecount || 0;
+            if (badgeCount > 0) {
+                notifBadge.textContent = badgeCount;
+                notifBadge.style.display = "block";
+            } else {
+                notifBadge.style.display = "none";
+            }
+        } catch (error) {
+            console.error("Error fetching badge count:", error);
         }
     }
     
-    // MutationObserver to detect changes in notif-item
-    const observer = new MutationObserver(() => {
-        // Get the updated count of notifications
-        const updatedNotificationsCount = document.querySelectorAll('.notif-item').length;
-    console.log(updatedNotificationsCount)
-        // Calculate the new notifications by subtracting the old count from the updated count
-        if (updatedNotificationsCount !== currentNotificationsCount) {
-            newNotifs = updatedNotificationsCount - currentNotificationsCount; // Calculate new notifications
-            currentNotificationsCount = updatedNotificationsCount; // Update the current count
-            updateBadgeCount(); // Update the badge count based on the new notifications
+    // Reset badge count when the container is closed
+    async function resetBadgeCount() {
+        try {
+            const response = await fetch("/reset-badge-count/", { method: "POST" }); // Create a view for this
+            if (response.ok) {
+                notifBadge.style.display = "none"; // Hide the badge
+            }
+        } catch (error) {
+            console.error("Error resetting badge count:", error);
         }
-    });
+    }
     
-    // Configuring the observer
-    const observerConfig = {
-        childList: true, // Watch for added/removed child nodes
-        subtree: true    // Observe all descendants of notifBody
-    };
+    // Check for new logs every 5 seconds
+    setInterval(fetchBadgeCount, 5000);
     
-    // Start observing the notifBody for changes in child elements (notif-item)
-    observer.observe(notifBody, observerConfig);
-    
-    // Toggle the notification container
+    // Handle notification container toggling
     notifBtn.addEventListener("click", () => {
         const isOpen = notifContainer.style.display === "block";
         notifContainer.style.display = isOpen ? "none" : "block";
-        notifBtn.setAttribute("aria-expanded", !isOpen);
     
-        // When the notification container is opened, set the current count to the latest number of notifications
-        if (!isOpen) {
-            currentNotificationsCount = document.querySelectorAll('.notif-item').length; // Update the count when opened
-            newNotifs = 0; // Reset the new notifications count when the container is opened
-            updateBadgeCount(); // Reset the badge when opened
+        // Reset badge count when the container is closed
+        if (isOpen) {
+            resetBadgeCount();
         }
     });
-    
-    // Close the notification container if clicked outside
-    document.addEventListener("click", (event) => {
-        if (!notifContainer.contains(event.target) && !notifBtn.contains(event.target)) {
-            notifContainer.style.display = "none";
-            notifBtn.setAttribute("aria-expanded", "false");
-    
-            // Keep the current notification count as is (do not reset when closing)
-            updateBadgeCount(); // Keep the badge as is when closed
-        }
-    });
-    
-    
-  
-    
-
-    
-
     
     
   </script>
