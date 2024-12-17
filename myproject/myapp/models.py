@@ -63,7 +63,7 @@ class CustomSchedule(models.Model):
         return f" Created Schedule for {self.date}: In at {self.time_in}, Out at {self.time_out} ({self.reason})"
     
 class OvertimeSetting(models.Model):
-    overtime_duration_hours = models.FloatField(default=3)  # default 3 hours
+    overtime_duration_hours = models.IntegerField(default=3)  # default 3 hours
 
     def __str__(self):
         return f"Updated Overtime Duration To: {self.overtime_duration_hours} hours"
